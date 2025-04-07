@@ -12,6 +12,7 @@ import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { signIn } from '@/lib/auth/auth-client'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 const SignIn = () => {
     const router = useRouter()
@@ -100,18 +101,15 @@ const SignIn = () => {
                                     />
                                 </FormControl>
                                 <FormMessage />
+                                <Link href="/forgot-password" className="text-xs underline ml-60">
+                                    Forgot Password?
+                                </Link>
                             </FormItem>
-
                         )}
                     />
                     <FormError message={error} />
                     <FormSuccess message={success} />
                     <Button disabled={loading} type="submit" className='w-full'>Login</Button>
-                     {/* // ignore this if your not adding OAuth into your app
-                    <div className='flex gap-x-2'>
-                        <SocialButton provider="google" icon={<FcGoogle />} label="Sign in with Google" />
-                        <SocialButton provider="github" icon={<FaGithub />} label="Sign in with GitHub" />
-                    </div> */}
                 </form>
             </Form>
         </CardWrapper>

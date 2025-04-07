@@ -1,13 +1,12 @@
 import React from 'react';
+import { cn } from "@/lib/utils"
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from './ui/card';
-import Link from 'next/link';
 
 interface CardWrapperType {
   children: React.ReactNode;
@@ -29,21 +28,23 @@ const CardWrapper = ({
   className = '',
 }: CardWrapperType) => {
   return (
-    <Card className={`w-[400px] relative ${className} border-2 shadow-md`}>
-      <CardHeader>
-        <CardTitle>{cardTitle}</CardTitle>
-        <CardDescription>{cardDescription}</CardDescription>
-      </CardHeader>
-      <CardContent>{children}</CardContent>
-      {cardFooterLink && (
-        <CardFooter className="flex items-center justify-center gap-x-1">
-          {cardFooterDescription && <span>{cardFooterDescription}</span>}
-          <Link href={cardFooterLink} className="underline text-blue-500 hover:text-blue-700">
-            {cardFooterLinkTitle}
-          </Link>
-        </CardFooter>
-      )}
-    </Card>
+    <div className={cn("flex flex-col gap-6", className)}>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">{cardTitle}</CardTitle>
+          <CardDescription>{cardDescription}</CardDescription>
+        </CardHeader>
+        <CardContent>{children}</CardContent>
+        {cardFooterLink && (
+          <div className="mt-4 text-center text-sm">
+            {cardFooterDescription}
+            <a href={cardFooterLink} className="underline underline-offset-4">
+              {cardFooterLinkTitle}
+            </a>
+          </div>
+        )}
+      </Card>
+    </div>
   );
 };
 
