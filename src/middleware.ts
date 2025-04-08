@@ -7,7 +7,7 @@ import { getValidSubdomain } from '@/utils/subdomain';
 const PUBLIC_FILE = /\.(.*)$/; // Files
 
 const protectedRoutes = ['/dashboard','/profile','/settings'] // Add your protected routes here
-const beforeLoginRoutes = ['/login', '/signup']
+const beforeLoginRoutes = ['/login', '/signup', '/forgot-password','/reset-password'] // Add your before login routes here
 
 export async function middleware(req: NextRequest) {
   // Clone the URL
@@ -18,8 +18,8 @@ export async function middleware(req: NextRequest) {
   const subdomain = getValidSubdomain(host);
   if (subdomain) {
     // Subdomain available, rewriting
-    console.log(`>>> Rewriting: ${url.pathname} to /${subdomain}${url.pathname}`);
-    url.pathname = `/${subdomain}${url.pathname}`;
+    console.log(`>>> Rewriting: ${url.pathname} to /users/${subdomain}${url.pathname}`);
+    url.pathname = `/users/${subdomain}${url.pathname}`;
     return NextResponse.rewrite(url);
   }
 

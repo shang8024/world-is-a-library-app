@@ -12,6 +12,7 @@ import { Button } from '../ui/button'
 import { SignupSchema } from '@/utils/zod/signup-schema'
 import { signUp } from '@/lib/auth/auth-client'
 import TermsAndConditionsCheckBox from '../TermAndConditions'
+import { generateUsername } from '@/utils/generate-username'
 
 const SignUp = () => {
     const { error, success, loading, setLoading, setError, setSuccess, resetState } = useAuthState();
@@ -76,11 +77,14 @@ const SignUp = () => {
                                     <Input
                                         disabled={loading}
                                         type="text"
-                                        required
-                                        min={2}
-                                        max={20}
-                                        placeholder='john'
-                                        {...field} />
+                                        placeholder='username'
+                                        {...field} 
+                                        onChange={(e) => {
+                                            field.onChange(e); // Update form state
+                                            const username = generateUsername(e.target.value);
+                                            form.setValue('username', username); // Auto-fill username
+                                        }}
+                                        />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
