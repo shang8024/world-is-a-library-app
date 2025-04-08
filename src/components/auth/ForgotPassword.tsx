@@ -55,8 +55,8 @@ const ForgotPassword = () => {
       cardTitle='Forgot Password'
       cardDescription='Enter your email to send link to reset password'
       cardFooterDescription="Remember your password?"
-      cardFooterLink='/signin'
-      cardFooterLinkTitle='Signin'
+      cardFooterLink='/login'
+      cardFooterLinkTitle='Login'
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -71,6 +71,7 @@ const ForgotPassword = () => {
                     disabled={loading}
                     type="email"
                     placeholder='example@gmail.com'
+                    required
                     {...field}
                   />
                 </FormControl>
@@ -80,7 +81,7 @@ const ForgotPassword = () => {
           />
           <FormError message={error} />
           <FormSuccess message={success} />
-          <Button disabled={loading} type="submit" className='w-full'>Submit</Button>
+          <Button disabled={loading} type="submit" className='w-full p-2 bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring focus-visible:ring-[3px] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none'>Submit</Button>
         </form>
       </Form>
 

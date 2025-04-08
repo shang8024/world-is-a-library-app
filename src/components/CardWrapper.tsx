@@ -28,8 +28,8 @@ const CardWrapper = ({
   className = '',
 }: CardWrapperType) => {
   return (
-    <div className={cn("flex flex-col gap-6", className)}>
-      <Card>
+    <div className={cn("flex flex-col gap-6 items-center", className)}>
+      <Card className='p-6 shadow-md w-md'>
         <CardHeader>
           <CardTitle className="text-2xl">{cardTitle}</CardTitle>
           <CardDescription>{cardDescription}</CardDescription>
@@ -37,7 +37,7 @@ const CardWrapper = ({
         <CardContent>{children}</CardContent>
         {cardFooterLink && (
           <div className="mt-4 text-center text-sm">
-            {cardFooterDescription}
+            {cardFooterDescription}{" "}
             <a href={cardFooterLink} className="underline underline-offset-4">
               {cardFooterLinkTitle}
             </a>

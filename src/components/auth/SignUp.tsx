@@ -6,11 +6,12 @@ import { useAuthState } from '@/hooks/useAuthState'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { SignupSchema } from '@/utils/zod/signup-schema'
 import { signUp } from '@/lib/auth/auth-client'
+import TermsAndConditionsCheckBox from '../TermAndConditions'
 
 const SignUp = () => {
     const { error, success, loading, setLoading, setError, setSuccess, resetState } = useAuthState();
@@ -21,6 +22,7 @@ const SignUp = () => {
             name: '',
             email: '',
             password: '',
+            username: '',
         }
     })
 
@@ -30,6 +32,7 @@ const SignUp = () => {
                 name: values.name,
                 email: values.email,
                 password: values.password,
+                username: values.username,
                 callbackURL:'/' // redirect the user after email is verified
             }, {
                 onResponse: () => {
@@ -55,7 +58,7 @@ const SignUp = () => {
 
     return (
         <CardWrapper
-        cardTitle='SignUp'
+        cardTitle='Sign Up'
         cardDescription='Create an new account'
         cardFooterLink='/login'
         cardFooterDescription='Already have an account?'
@@ -119,14 +122,19 @@ const SignUp = () => {
                                         {...field}
                                     />
                                 </FormControl>
-                                <FormMessage />
+                                <FormMessage>
+                                    Password must be 8-20 characters long
+                                </FormMessage>
                             </FormItem>
-
                         )}
                     />
+                    <TermsAndConditionsCheckBox/>
                     <FormError message={error} />
                     <FormSuccess message={success} />
-                    <Button disabled={loading} type="submit" className='w-full'>Submit</Button>
+                    <Button 
+                    disabled={loading} type="submit" 
+                    className='w-full p-2 bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring focus-visible:ring-[3px] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none'
+                    >Submit</Button>
                      {/* //ignore this if your not adding Oauth
                     <div className='flex gap-x-2'>
                         <SocialButton provider="google" icon={<FcGoogle />} label="Sign in with Google" />

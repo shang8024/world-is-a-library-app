@@ -91,7 +91,11 @@ const SignIn = () => {
                         name="password"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Password</FormLabel>
+                                <FormLabel>Password
+                                    <Link href="/forgot-password" className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
+                                        Forgot Password?
+                                    </Link>
+                                </FormLabel>
                                 <FormControl>
                                     <Input
                                         disabled={loading}
@@ -101,15 +105,12 @@ const SignIn = () => {
                                     />
                                 </FormControl>
                                 <FormMessage />
-                                <Link href="/forgot-password" className="text-xs underline ml-60">
-                                    Forgot Password?
-                                </Link>
                             </FormItem>
                         )}
                     />
                     <FormError message={error} />
                     <FormSuccess message={success} />
-                    <Button disabled={loading} type="submit" className='w-full'>Login</Button>
+                    <Button disabled={loading} type="submit" className='w-full p-2 bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring focus-visible:ring-[3px] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none'>Login</Button>
                 </form>
             </Form>
         </CardWrapper>

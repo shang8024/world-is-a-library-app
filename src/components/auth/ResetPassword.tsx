@@ -50,7 +50,6 @@ const ResetPassword = () => {
             console.log(error)
             setError("Something went wrong")
         }
-
     }
 
     return (
@@ -74,9 +73,12 @@ const ResetPassword = () => {
                                         disabled={loading}
                                         type="password"
                                         placeholder='************'
+                                        required
                                         {...field} />
                                 </FormControl>
-                                <FormMessage />
+                                <FormMessage>
+                                    Password must be 8-20 characters long
+                                </FormMessage>
                             </FormItem>
                         )}
                     />
@@ -92,6 +94,7 @@ const ResetPassword = () => {
                                         type="password"
                                         placeholder='*************'
                                         {...field}
+                                        required
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -100,7 +103,7 @@ const ResetPassword = () => {
                     />
                     <FormError message={error} />
                     <FormSuccess message={success} />
-                    <Button type="submit" className="w-full" disabled={loading}>Submit</Button>
+                    <Button type="submit" className='w-full p-2 bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring focus-visible:ring-[3px] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none' disabled={loading}>Submit</Button>
                 </form>
             </Form>
         </CardWrapper>
