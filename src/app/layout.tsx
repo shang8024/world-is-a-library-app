@@ -6,6 +6,7 @@ import "./globals.css"
 import { cn } from "@/lib/utils"
 import { ActiveThemeProvider } from "@/components/active-theme"
 import { Footer } from "@/components/Footer";
+import { Suspense } from "react"
 
 const META_THEME_COLORS = {
   light: "#ffffff",
@@ -61,7 +62,10 @@ export default async function RootLayout({
           enableColorScheme
         >
           <ActiveThemeProvider initialTheme={activeThemeValue}>
+            <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
             {children}
+            </Suspense>
+            {/* Footer */}
             <Footer />
           </ActiveThemeProvider>
         </ThemeProvider>

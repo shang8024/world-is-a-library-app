@@ -18,7 +18,8 @@ model User {
   twoFactorEnabled Boolean   @default(false)
   Session          Session[]
   Account          Account[]
-  username         String
+  username         String    @unique
+  displayUsername  String?
   isAnonymous      Boolean?
 
   @@unique([email])

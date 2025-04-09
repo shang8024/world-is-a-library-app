@@ -3,6 +3,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "@/db";
 import { username } from "better-auth/plugins"
+import { nextCookies } from "better-auth/next-js";
 
 const sender_email = process.env.SENDER_EMAIL as string;
 export const auth = betterAuth({
@@ -15,7 +16,6 @@ export const auth = betterAuth({
     autoSignIn: false,
     minPasswordLength: 8,
     maxPasswordLength: 20,
-    
     requireEmailVerification: true, //It does not allow user to login without email verification [!code highlight]
     sendResetPassword: async ({ user, url }) => {
       await resend.emails.send({
@@ -50,5 +50,6 @@ export const auth = betterAuth({
   },
   plugins: [
     username(),
+    nextCookies(),
   ],
 });

@@ -1,12 +1,10 @@
+import prisma from '@/db';
+
 interface UserData {
-    uid: string;
     username: string;
-    totalSeries: number;
-    totalBooks: number;
-    numFollowers: number;
-    numFollowing: number;
-    bio: string;
-    image: string;
+    email: string;
+    image: string | null;
+    createdAt: Date;
   }
   
   export interface FetchError {
@@ -15,20 +13,25 @@ interface UserData {
     isFetchError: true; // Unique identifier
   }
   
-  export async function fetchPost(id: string): Promise<Post> {
-    const posts: Post[] = [
-      { id: "1", title: "First Post", content: "Hello world" },
-      { id: "2", title: "Second Post" },
-    ];
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    const post = posts.find((p) => p.id === id);
-    if (!post) {
+  export async function fetchUser(uid: string) : Promise<UserData> {
+    const user = await prisma.user.findFirst({
+      where: { 
+        username: uid,
+      },
+      select: {
+        username: true,
+        email: true,
+        image: true,
+        createdAt: true,
+      },
+    });
+    if (!user) {
       const error: FetchError = {
-        message: `Post with id "${id}" not found`,
+        message: `User with id "${uid}" not found`,
         status: 404,
         isFetchError: true,
       };
       throw error;
     }
-    return post;
+    return user;
   }

@@ -1,7 +1,7 @@
-// middleware.ts
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+// middleware.ts]
 import { getValidSubdomain } from '@/utils/subdomain';
+import { NextRequest, NextResponse } from "next/server";
+import { getSessionCookie } from "better-auth/cookies";
 
 // RegExp for public files
 const PUBLIC_FILE = /\.(.*)$/; // Files
@@ -22,12 +22,21 @@ export async function middleware(req: NextRequest) {
     url.pathname = `/users/${subdomain}${url.pathname}`;
     return NextResponse.rewrite(url);
   }
-
   // TODO: get session cookie from server
-
+  const sessionCookie = getSessionCookie(req);
   // TODO: if no valid cookie and is protected route, redirect to login
+  if (!sessionCookie && protectedRoutes.some(route => url.pathname.startsWith(route))) {
+    console.log(`>>> Redirecting to /login`);
+    url.pathname = '/login';
+    return NextResponse.redirect(url);
+  }
 
   // TODO: if valid cookie and is beforeLogin route, redirect to dashboard
+  if (sessionCookie && beforeLoginRoutes.some(route => url.pathname.startsWith(route))) {
+    console.log(`>>> Redirecting to /dashboard`);
+    url.pathname = '/dashboard';
+    return NextResponse.redirect(url);
+  }
 
   return NextResponse.next();
 }

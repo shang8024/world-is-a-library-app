@@ -12,8 +12,9 @@ import { Button } from '../ui/button'
 import { SignupSchema } from '@/utils/zod/signup-schema'
 import { signUp } from '@/lib/auth/auth-client'
 import TermsAndConditionsCheckBox from '../TermAndConditions'
-import { generateUsername } from '@/utils/generate-username'
-
+import generateUsername from '@/utils/generate-username'
+const baseURL = process.env.NEXT_PUBLIC_APP_URL as string;
+console.log(baseURL)
 const SignUp = () => {
     const { error, success, loading, setLoading, setError, setSuccess, resetState } = useAuthState();
 
@@ -23,18 +24,18 @@ const SignUp = () => {
             name: '',
             email: '',
             password: '',
-            username: '',
         }
     })
 
     const onSubmit = async (values: z.infer<typeof SignupSchema>) => {
         try {
+            const username = generateUsername(values.name)
             await signUp.email({
                 name: values.name,
                 email: values.email,
                 password: values.password,
-                username: values.username,
-                callbackURL:'/' // redirect the user after email is verified
+                callbackURL:'/',
+                username: username,
             }, {
                 onResponse: () => {
                     setLoading(false)
@@ -67,7 +68,7 @@ const SignUp = () => {
         >
             <Form {...form}>
                 <form className='space-y-4' onSubmit={form.handleSubmit(onSubmit)}>
-                <FormField
+                    <FormField
                         control={form.control}
                         name="name"
                         render={({ field }) => (
@@ -78,13 +79,8 @@ const SignUp = () => {
                                         disabled={loading}
                                         type="text"
                                         placeholder='username'
-                                        {...field} 
-                                        onChange={(e) => {
-                                            field.onChange(e); // Update form state
-                                            const username = generateUsername(e.target.value);
-                                            form.setValue('username', username); // Auto-fill username
-                                        }}
-                                        />
+                                        {...field}     
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -137,13 +133,8 @@ const SignUp = () => {
                     <FormSuccess message={success} />
                     <Button 
                     disabled={loading} type="submit" 
-                    className='w-full p-2 bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring focus-visible:ring-[3px] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none'
+                    className='w-full p-2 cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring focus-visible:ring-[3px] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none'
                     >Submit</Button>
-                     {/* //ignore this if your not adding Oauth
-                    <div className='flex gap-x-2'>
-                        <SocialButton provider="google" icon={<FcGoogle />} label="Sign in with Google" />
-                        <SocialButton provider="github" icon={<FaGithub />} label="Sign in with GitHub" />
-                    </div> */}
                 </form>
             </Form>
         </CardWrapper>
