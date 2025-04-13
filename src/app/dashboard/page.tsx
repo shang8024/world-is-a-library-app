@@ -1,30 +1,52 @@
-import { auth } from "@/lib/auth/auth"
-import { headers } from "next/headers"
-import { Suspense } from "react";
+"use client"
+import React from "react";
+import { authClient } from "@/lib/auth/auth-client"
+import { useRouter } from "next/navigation"
+import SignOut from "@/components/auth/SignOut";
+import ChapterEditor from "@/components/editor/ChapterEditor";
+import { SeriesList } from "@/components/BookSection";
+const list = [
+  { name: "Series 1", books: [{name: "Book 1"}, {name: "Book 2"}] },
+  { name: "Series 2", books: [{name: "Book 3"}, {name: "Book 4"}] },
+]
 
-export default async function DashboardPage() {
-  try{
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
-    if (!session) {
-      return <p className="text-red-600">You are not authenticated</p>;
-    }
-    const user = session?.user;
-    return (
-        <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-          <div className="bg-white shadow-md rounded-lg p-6 max-w-md w-full">
-            <h1 className="text-2xl font-bold mb-4">User Dashboard</h1>
-            <p className="text-gray-700">Welcome, {user?.name}!</p>
-            <p className="text-gray-700">Email: {user?.email}</p>
-            <p className="text-gray-700">Joined: {user?.createdAt.toLocaleString()}</p>
-          </div>
+export default function DashboardPage() {
+  const router = useRouter()
+  const { 
+    data: session, 
+    isPending, //loading state
+    error, //error object
+    refetch //refetch the session
+  } = authClient.useSession()
+  if (!isPending && !session) {
+    router.push("/login")
+  }
+  return (
+    <div className="flex min-h-svh items-center justify-center p-6 md:p-10">
+    {
+      isPending ? (
+        <div className="flex justify-center items-center h-screen">
+          <p className="text-2xl">Loading...</p>
         </div>
-    );
-  }
-  catch(error) {
-    const unknownError =
-      error instanceof Error ? error.message : "Unknown error";
-    return <p className="text-red-600">Error: {unknownError}</p>;
-  }
+      ) : error ? (
+        <div className="flex justify-center items-center h-screen">
+          <p className="text-2xl text-red-500">{error.message}</p>
+        </div>
+      ) : session ? (
+        <div className="flex flex-col items-center justify-center h-screen w-[390px]">
+          <h1 className="text-2xl font-bold">Welcome to the Dashboard</h1>
+          <p className="mt-4 text-lg">Hello, {session.user.name}</p>
+          <SeriesList serieslist={list} />
+          <ChapterEditor  />
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center h-screen">
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <p className="mt-4 text-lg">Please sign in to access your dashboard.</p>
+        </div>
+      )
+}</div>
+);
+
+
 }

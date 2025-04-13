@@ -1,12 +1,16 @@
 import type { Metadata, Viewport } from "next"
 import { cookies } from "next/headers"
 import { fontVariables } from "@/lib/fonts"
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/components/theme/ThemeProvider"
 import "./globals.css"
 import { cn } from "@/lib/utils"
-import { ActiveThemeProvider } from "@/components/active-theme"
+import { ActiveThemeProvider } from "@/components/theme/ActiveTheme"
 import { Footer } from "@/components/Footer";
 import { Suspense } from "react"
+import { Toaster } from "@/components/ui/sonner"
+import { NavHeader } from "@/components/NavHeader"
+import { ThemeSelector } from "@/components/theme/ThemeSelector"
+import { ModeSwitcher } from "@/components/theme/ModeSwitcher"
 
 const META_THEME_COLORS = {
   light: "#ffffff",
@@ -63,7 +67,18 @@ export default async function RootLayout({
         >
           <ActiveThemeProvider initialTheme={activeThemeValue}>
             <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
-            {children}
+            <main>
+              <header className="bg-background sticky inset-x-0 top-0 isolate z-10 flex shrink-0 items-center gap-2 border-b">
+                <div className="flex h-14 w-full items-center gap-2 px-4">
+                  <NavHeader />
+                  <div className="ml-auto flex items-center gap-2">
+                    <ModeSwitcher />
+                  </div>
+                </div>
+              </header>
+              {children}
+            </main>
+            <Toaster/>
             </Suspense>
             {/* Footer */}
             <Footer />
