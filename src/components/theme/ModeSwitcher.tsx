@@ -24,7 +24,7 @@ export function ModeSwitcher() {
     <Button
       variant="outline"
       size="icon"
-      className="group/toggle size-8"
+      className="group/toggle size-8 flex align-items-center"
       onClick={toggleTheme}
     >
       <SunIcon className="hidden [html.dark_&]:block" />

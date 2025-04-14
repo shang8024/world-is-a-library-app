@@ -1,4 +1,4 @@
-import CreateBookForm from '@/components/book/BookForm'
+import { CreateBookForm } from '@/components/book/BookForm'
 import React from 'react'
 
 const CreateBookPage = () => {

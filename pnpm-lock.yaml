@@ -12,7 +12,7 @@ dependencies:
     specifier: ^0.30.0
     version: 0.30.0(react-dom@19.1.0)(react@19.1.0)(yjs@13.6.24)
   '@prisma/client':
-    specifier: ^6.5.0
+    specifier: ^6.6.0
     version: 6.6.0(prisma@6.6.0)(typescript@5.8.3)
   '@radix-ui/react-accordion':
     specifier: ^1.2.4
@@ -132,7 +132,7 @@ dependencies:
     specifier: ^19.0.0
     version: 19.1.0
   react-day-picker:
-    specifier: 8.10.1
+    specifier: ^8.10.1
     version: 8.10.1(date-fns@4.1.0)(react@19.1.0)
   react-dom:
     specifier: ^19.0.0
@@ -158,9 +158,12 @@ dependencies:
   tailwind-merge:
     specifier: ^3.2.0
     version: 3.2.0
-  tailwindcss-animate:
-    specifier: ^1.0.7
-    version: 1.0.7(tailwindcss@4.1.3)
+  tailwindcss:
+    specifier: ^4.0.7
+    version: 4.1.3
+  tw-animate-css:
+    specifier: ^1.2.5
+    version: 1.2.5
   vaul:
     specifier: ^1.1.2
     version: 1.1.2(@types/react-dom@19.1.2)(@types/react@19.1.1)(react-dom@19.1.0)(react@19.1.0)
@@ -173,7 +176,7 @@ devDependencies:
     specifier: ^3
     version: 3.3.1
   '@tailwindcss/postcss':
-    specifier: ^4.1.3
+    specifier: ^4
     version: 4.1.3
   '@types/node':
     specifier: ^20
@@ -199,12 +202,6 @@ devDependencies:
   prisma:
     specifier: ^6.5.0
     version: 6.6.0(typescript@5.8.3)
-  tailwindcss:
-    specifier: ^4.1.3
-    version: 4.1.3
-  tw-animate-css:
-    specifier: ^1.2.5
-    version: 1.2.5
   typescript:
     specifier: ^5
     version: 5.8.3
@@ -5815,14 +5812,6 @@ packages:
     resolution: {integrity: sha512-FQT/OVqCD+7edmmJpsgCsY820RTD5AkBryuG5IUqR5YQZSdj5xlH5nLgH7YPths7WsLPSpSBNneJdM8aS8aeFA==}
     dev: false
 
-  /tailwindcss-animate@1.0.7(tailwindcss@4.1.3):
-    resolution: {integrity: sha512-bl6mpH3T7I3UFxuvDEXLxy/VuFxBk5bbzplh7tXI68mwMokNYd1t9qPBHlnyTwfa4JGC4zP516I1hYYtQ/vspA==}
-    peerDependencies:
-      tailwindcss: '>=3.0.0 || insiders'
-    dependencies:
-      tailwindcss: 4.1.3
-    dev: false
-
   /tailwindcss@4.1.3:
     resolution: {integrity: sha512-2Q+rw9vy1WFXu5cIxlvsabCwhU2qUwodGq03ODhLJ0jW4ek5BUtoCsnLB0qG+m8AHgEsSJcJGDSDe06FXlP74g==}
 
@@ -5873,7 +5862,7 @@ packages:
 
   /tw-animate-css@1.2.5:
     resolution: {integrity: sha512-ABzjfgVo+fDbhRREGL4KQZUqqdPgvc5zVrLyeW9/6mVqvaDepXc7EvedA+pYmMnIOsUAQMwcWzNvom26J2qYvQ==}
-    dev: true
+    dev: false
 
   /type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}

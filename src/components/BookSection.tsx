@@ -49,30 +49,21 @@ const BookList = ({ books }: BookListProps) => {
   )
 }
 
-const SeriesListItem = ({ series }: { series: SeriesProps }) => {
-  const [isOpen, setIsOpen] = React.useState(false)
-  console.log("series", series)
- 
-  return (
-    <AccordionItem value={series.name}>
-      <AccordionTrigger>{series.name}</AccordionTrigger>
-      <AccordionContent>
-        Yes. It adheres to the WAI-ARIA design pattern.
-      </AccordionContent>
-    </AccordionItem>
-  )
-}
-
 const SeriesList = ({serieslist}: SeriesListProps) => {
     console.log("serieslist", serieslist)
   return (
     <div className="grid w-full max-w-xl gap-4">
-      <Accordion type="single" collapsible className="w-full">
+      <Accordion type="multiple" collapsible="true" className="w-full">
       {serieslist.map((series, index) => (
-        <SeriesListItem key={index} series={series} />
+        <AccordionItem key={index} value={series.name}>
+          <AccordionTrigger>{series.name}</AccordionTrigger>
+          <AccordionContent>
+          Yes. It adheres to the WAI-ARIA design pattern.
+         </AccordionContent>
+        </AccordionItem>
       ))}</Accordion>
     </div>
   )
 }
 
-export { SeriesList, SeriesListItem }
+export { SeriesList }

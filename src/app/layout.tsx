@@ -9,7 +9,6 @@ import { Footer } from "@/components/Footer";
 import { Suspense } from "react"
 import { Toaster } from "@/components/ui/sonner"
 import { NavHeader } from "@/components/NavHeader"
-import { ThemeSelector } from "@/components/theme/ThemeSelector"
 import { ModeSwitcher } from "@/components/theme/ModeSwitcher"
 
 const META_THEME_COLORS = {

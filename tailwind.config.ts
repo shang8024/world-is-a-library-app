@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss"
 const { fontFamily } = require("tailwindcss/defaultTheme")
 
-import twAnimateCss from 'tw-animate-css';
+import twAnimateCss from "tailwindcss-animate"
 
 const tailwindConfig = {
   darkMode: false, // or 'media' or 'class'
