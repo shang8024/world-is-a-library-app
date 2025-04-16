@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/collapsible"
 import { Separator } from "@/components/ui/separator"
 import { updateSeries, deleteSeries } from "@/lib/book/series-actions"
+import { BookList } from "@/components/book/BookList"
+import { useDashboardContext } from "@/hooks/useDashboardContext"
 
 interface SeriesListItemProps {
   series: Series & { books: Book[] };
@@ -27,28 +29,8 @@ interface SeriesListItemProps {
 }
 
 
-interface BookListProps {
-  books: Book[];
-  editable?: boolean;
-}
-
 interface SeriesListProps {
   serieslist: (Series & { books: Book[] })[];
-  editable?: boolean;
-  action?: (params: { id: string; name?: string }) => void;
-}
-
-const BookList = ({ books, editable }: BookListProps) => {
-  console.log("books", books)
-  return (
-    <div className="grid w-full max-w-xl gap-4">
-      {books.map((book, index) => (
-        <Button key={index} variant="outline" className="w-full" onClick={() => console.log(book)}>
-          {book.title}
-        </Button>
-      ))}
-    </div>
-  )
 }
 
 const SeriesListItem = ({ series, editable, isLoading, isEditing, seriesActions }: SeriesListItemProps) => {
@@ -62,7 +44,7 @@ const SeriesListItem = ({ series, editable, isLoading, isEditing, seriesActions 
         className="w-full space-y-2"
       >
         <div className="flex items-center justify-between m-0 w-full">
-          {editable ? (
+          {editable && series.id !== '-1' ? (
             <div className="flex items-center justify-between w-full space-x-2">
               {isEditing ? (
               <Input
@@ -118,12 +100,22 @@ const SeriesListItem = ({ series, editable, isLoading, isEditing, seriesActions 
         </CollapsibleContent>
       </Collapsible>
     )
-
 }
 
-const SeriesList = ({serieslist, editable}: SeriesListProps) => {
+const SeriesListPublic = ({ serieslist }: SeriesListProps) => {
+  return (
+    <div className="grid w-full  gap-4">
+      {serieslist.map((series, index) => (
+        <SeriesListItem series={series} key={index}/>
+      ))}
+    </div>
+  )
+}
+
+const SeriesListDashboard = () => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const {serieslist, setSeries} = useDashboardContext();
 
   const finishEditing = () => {
     setIsLoading(false);
@@ -131,14 +123,15 @@ const SeriesList = ({serieslist, editable}: SeriesListProps) => {
   }
 
   const handleSubmit = (index: number, newValue: string) => {
-    console.log("handleSubmit", index, newValue)
     const name = newValue.trim().replace(/\s+/g, " ");
+    const id = serieslist[index].id;
+    if (id == '-1') return;
     if (name !== "" && serieslist[index].name !== name) {
       setIsLoading(true);
       toast.promise(
         (async () => {
             const result = await updateSeries({
-                id: serieslist[index].id,
+                id: id,
                 name: name,
             });
             if (result.status !== 200) {
@@ -148,7 +141,12 @@ const SeriesList = ({serieslist, editable}: SeriesListProps) => {
         {
           loading: "Loading...",
           success: () => {
-            serieslist[index].name = name;
+            const updatedSeries = [...serieslist];
+            updatedSeries[index] = {
+              ...updatedSeries[index],
+              name: name,
+            };
+            setSeries(updatedSeries);
             return `Book information edited successfully`;
           },
           error: (error) => {
@@ -160,14 +158,13 @@ const SeriesList = ({serieslist, editable}: SeriesListProps) => {
           }
         }
       );
-      
     }
-    
   };
 
   const handleDelete = (index: number) => {
     //TODO: server action 
     const id = serieslist[index].id;
+    if (id == '-1') return;
     setIsLoading(true);
     toast.promise(
       (async () => {
@@ -179,7 +176,12 @@ const SeriesList = ({serieslist, editable}: SeriesListProps) => {
       {
         loading: "Loading...",
         success: () => {
-          serieslist.splice(index, 1);
+          // add all books in that series to ungrouped
+          const ungroupedBooks = serieslist[index].books
+          const updatedSeries = [...serieslist];
+          updatedSeries.splice(index, 1);
+          updatedSeries[-1].books.push(...ungroupedBooks)
+          setSeries(updatedSeries);
           return `Series deleted successfully`;
         },
         error: (error) => {
@@ -193,12 +195,12 @@ const SeriesList = ({serieslist, editable}: SeriesListProps) => {
   }
 
   return (
-    <div className="grid w-full max-w-xl gap-4">
+    <div className="grid w-full  gap-4">
       {serieslist.map((series, index) => (
         <SeriesListItem
           series={series}
           key={index}
-          editable={editable }
+          editable={true}
           isLoading={isLoading}
           isEditing={editingIndex === index}
           seriesActions={{
@@ -213,4 +215,4 @@ const SeriesList = ({serieslist, editable}: SeriesListProps) => {
   )
 }
 
-export { SeriesList }
+export { SeriesListDashboard, SeriesListPublic }
