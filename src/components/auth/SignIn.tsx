@@ -81,10 +81,11 @@ const SignIn = () => {
                                         disabled={loading}
                                         type="email"
                                         placeholder='example@gmail.com'
+                                        className='p-2'
                                         {...field}
                                     />
                                 </FormControl>
-                                <FormMessage />
+                                <FormMessage className='text-sm'/>
                             </FormItem>
                         )}
                     />
@@ -94,7 +95,7 @@ const SignIn = () => {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Password
-                                    <Link href="/forgot-password" className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
+                                    <Link href="/forgot-password" className="ml-auto inline-block text-sm underline-offset-4 hover:underline text-muted-foreground">
                                         Forgot Password?
                                     </Link>
                                 </FormLabel>
@@ -103,10 +104,11 @@ const SignIn = () => {
                                         disabled={loading}
                                         type="password"
                                         placeholder='********'
+                                        className='p-2'
                                         {...field}
                                     />
                                 </FormControl>
-                                <FormMessage />
+                                <FormMessage className='text-sm'/>
                             </FormItem>
                         )}
                     />

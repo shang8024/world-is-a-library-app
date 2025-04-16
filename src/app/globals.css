@@ -5,6 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 @import './themes.css';
 
+
 @theme {
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
@@ -99,6 +100,20 @@
 }
 
 @layer base {
+
+  html {
+    overflow: scroll;
+    overflow-x: hidden;
+  }
+  ::-webkit-scrollbar {
+    width: 0;  /* Remove scrollbar space */
+    background: transparent;  /* Optional: just make scrollbar invisible */
+  }
+  /* Optional: show position indicator in red */
+  ::-webkit-scrollbar-thumb {
+    background: #FF0000;
+  }
+  
   :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;

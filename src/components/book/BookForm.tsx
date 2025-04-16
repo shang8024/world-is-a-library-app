@@ -18,21 +18,20 @@ interface Book {
     id?: string,
     title: string,
     description?: string,
-    isdraft: boolean,
+    isPublic: boolean,
 }
 
-function BookForm({book, action} : {book?: Book, action: (values: z.infer<typeof BookSchema>, callback: () => void) => void}) {
+function BookForm({book, action}: {book?: Book, action: (values: z.infer<typeof BookSchema>, callback: () => void) => void}) {
     const [loading, setLoading] = useState(false)
     const form = useForm<z.infer<typeof BookSchema>>({
         resolver: zodResolver(BookSchema),
         defaultValues: {
             title: book?.title || "",
-            isdraft: book?.isdraft || false,
+            isPublic: book?.isPublic || false,
             description: book?.description || "",
         }
     })
     const onSubmit = async (values: z.infer<typeof BookSchema>) => {
-      console.log(values)
         setLoading(true)
         action(values, () => setLoading(false))
     }
@@ -55,7 +54,8 @@ function BookForm({book, action} : {book?: Book, action: (values: z.infer<typeof
                                         className='p-2'
                                     />
                                 </FormControl>
-                                <FormMessage>{field.value.length}/255
+                                <FormMessage className='text-sm'>
+                                    {field.value.length}/255
                                 </FormMessage>
                             </FormItem>
                         )}
@@ -75,7 +75,7 @@ function BookForm({book, action} : {book?: Book, action: (values: z.infer<typeof
                                     {...field}
                                   />
                                 </FormControl>
-                                <FormMessage>
+                                <FormMessage className='text-sm'>
                                     {field.value.length}/1000
                                 </FormMessage>
                             </FormItem>
@@ -83,12 +83,12 @@ function BookForm({book, action} : {book?: Book, action: (values: z.infer<typeof
                     />
                     <FormField
                         control={form.control}
-                        name="isdraft"
+                        name="isPublic"
                         render={({ field }) => (
                             <FormItem className='flex items-center space-x-2'>
                                 <FormControl>
                                   <Switch.Root
-                                    className="relative h-[1.15rem] w-8 cursor-default rounded-full outline-none focus-visible:ring-[3px]  data-[state=checked]:bg-primary data-[state=unchecked]:bg-input  disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="relative h-[20px] w-9 cursor-default rounded-full outline-none focus-visible:ring-[3px]  data-[state=checked]:bg-primary data-[state=unchecked]:bg-input  disabled:cursor-not-allowed disabled:opacity-50"
                                     id="airplane-mode"
                                     disabled={loading}
                                     checked={field.value}
@@ -96,7 +96,7 @@ function BookForm({book, action} : {book?: Book, action: (values: z.infer<typeof
                                     ref={field.ref}
                                   >
                                     <Switch.Thumb 
-                                      className="block size-4 translate-x-0.5 rounded-full bg-background dark:data-[state=checked]:bg-primary-foreground transition-transform duration-100 focus-visible:border-ring focus-visible:ring-ring/50 will-change-transform data-[state=checked]:translate-x-[calc(100%-2px)]"
+                                      className="block size-4 translate-x-0.5 rounded-full bg-background dark:data-[state=checked]:bg-primary-foreground transition-transform duration-100 focus-visible:border-ring focus-visible:ring-ring/50 will-change-transform data-[state=checked]:translate-x-[calc(100%+2px)]"
                                     />
                                   </Switch.Root>
                                 </FormControl>
@@ -104,7 +104,9 @@ function BookForm({book, action} : {book?: Book, action: (values: z.infer<typeof
                             </FormItem>
                         )}
                     />
-                    <Button disabled={loading} type="submit" className='p-2 bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring focus-visible:ring-[3px] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none' >create book</Button>
+                    <div className='flex justify-end items-center space-x-2'>
+                    <Button disabled={loading} type="submit" className='p-2 bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring focus-visible:ring-[3px] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none' >save cahnges</Button>
+                    </div>
                 </form>
         </Form>
     )
@@ -122,7 +124,7 @@ function CreateBookForm() {
                     const result = await createBook({
                         title: values.title,
                         description: values.description,
-                        isdraft: values.isdraft,
+                        isPublic: values.isPublic,
                     });
                     if (result.status !== 200) {
                         throw new Error(result.message)
@@ -166,7 +168,7 @@ function EditBookInfoForm({book} : {book: Book}) {
                   const result = await createBook({
                       title: values.title,
                       description: values.description,
-                      isdraft: values.isdraft,
+                      isPublic: values.isPublic,
                   });
                   if (result.status !== 200) {
                       throw new Error(result.message)

@@ -66,7 +66,7 @@ export default async function RootLayout({
         >
           <ActiveThemeProvider initialTheme={activeThemeValue}>
             <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
-            <main>
+            <main className="min-h-screen">
               <header className="bg-background sticky inset-x-0 top-0 isolate z-10 flex shrink-0 items-center gap-2 border-b">
                 <div className="flex h-14 w-full items-center gap-2 px-4">
                   <NavHeader />
@@ -75,7 +75,9 @@ export default async function RootLayout({
                   </div>
                 </div>
               </header>
+              <div className="h-[calc(100vh-3.5rem)]">
               {children}
+              </div>
             </main>
             <Toaster/>
             </Suspense>

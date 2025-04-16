@@ -11,7 +11,7 @@ const EditBookInfoPage = () => {
   const res = await fetch(`${baseUrl}/api/books/${bid}`);
 
   return (
-    <div className="flex min-h-svh items-center justify-center p-6 md:p-10">
+    <div className="flex min-h-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
         <Suspense fallback={<div>Loading...</div>}>
             <EditBookInfoFrom bid={bid}/>
@@ -23,4 +23,4 @@ const EditBookInfoPage = () => {
 
 
 
-export default CreateBookPage
+export default EditBookInfoPage

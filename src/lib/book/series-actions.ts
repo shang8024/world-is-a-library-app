@@ -3,12 +3,12 @@ import prisma from "@/db"
 import {auth} from "@/lib/auth/auth"
 import { Prisma } from '@prisma/client'
 import { headers } from "next/headers"
+// impoet Book from prisma/book
+import { Series } from "@prisma/client"
 
-type BookForm = {
+type SeriesForm = {
     id?: string,
-    title: string,
-    isPublic: boolean,
-    description: string,
+    name: string,
 }
 
 export type ActionResult<T = void> = {
@@ -17,7 +17,7 @@ export type ActionResult<T = void> = {
     data?: T
   }
 
-export async function createBook(data: BookForm): Promise<ActionResult> {
+export async function createSeries(data: SeriesForm): Promise<ActionResult<Series>> {
     try {
         const session = await auth.api.getSession({
             headers: await headers()
@@ -28,27 +28,22 @@ export async function createBook(data: BookForm): Promise<ActionResult> {
                 message: "Session expired, Please login again",
             }
         }
-        // TODO (optional): create a book, if this is the first book created, crate a default series
-        // if find default series, create a book in that series
-
-        // TODO: create a book in the database, if such name and author not unique, throw error
-        const book = await prisma.book.create({
+        // TODO: create a series in the database, if such name and author not unique, throw error
+        const series = await prisma.series.create({
             data: {
-                title: data.title,
-                description: data.description || "",
-                isPublic: data.isPublic,
                 authorId: session.user.id,
+                name: data.name,
             },
         })
-        console.log("Book created successfully", book)
         return {
-            status: 200
+            status: 200,
+            data: series,
         }
     } catch (err) {
         if (
             err instanceof Prisma.PrismaClientKnownRequestError &&
             err.code === 'P2002') {
-            return { status: 409, message: 'A book with this name already exists for this author' }
+            return { status: 409, message: 'A series with this name already exists for this author' }
         }
         return {
             status: 500,
@@ -57,7 +52,7 @@ export async function createBook(data: BookForm): Promise<ActionResult> {
     }
 }
 
-export async function updateBook(data: BookForm): Promise<ActionResult> {
+export async function updateSeries(data: SeriesForm): Promise<ActionResult<Series>> {
     try {
         const session = await auth.api.getSession({
             headers: await headers()
@@ -68,37 +63,37 @@ export async function updateBook(data: BookForm): Promise<ActionResult> {
                 message: "Session expired, Please login again",
             }
         }
-
-        const book = await prisma.book.findFirst({
+        const series = await prisma.series.findFirst({
             where: {
                 id: data.id,
                 authorId: session.user.id,
             },
         })
-        if (!book || book.authorId !== session.user.id) {
+        if (!series) {
             return {
-                message: "Unauthorized action", 
                 status: 403,
+                message: "UNauthorized action",
             }
         }
-        await prisma.book.update({
+        const updated = await prisma.series.update({
             where: {
                 id: data.id,
             },
             data: {
-                title: data.title,
-                description: data.description || "",
-                isPublic: data.isPublic,
+                name: data.name,
             },
         })
         return {
             status: 200,
+            data: updated,
         }
     } catch (err) {
+        // TODO: check if such book exist with the author, if not
+        // user logged in a different account, expire the session and require login again
         if (
             err instanceof Prisma.PrismaClientKnownRequestError &&
             err.code === 'P2002') {
-            return { status: 409, message: 'A book with this name already exists for this author' }
+            return { status: 409, message: 'A series with this name already exists for this author' }
         }
         return {
             status: 500,
@@ -107,7 +102,7 @@ export async function updateBook(data: BookForm): Promise<ActionResult> {
     }
 }
 
-export async function deleteBook(bid: string): Promise<ActionResult> {
+export async function deleteSeries(id: string): Promise<ActionResult> {
     try {
         const session = await auth.api.getSession({
             headers: await headers()
@@ -118,35 +113,36 @@ export async function deleteBook(bid: string): Promise<ActionResult> {
                 message: "Session expired, Please login again",
             };
         }
-        const book = await prisma.book.findFirst({
+        const series = await prisma.series.findFirst({
             where: {
-                id: bid,
+                id: id,
                 authorId: session.user.id,
             },
-        })
-        if (!book) {
+        });
+        if (!series) {
             return {
                 status: 403,
                 message: "Unauthorized action",
-            }
+            };
         }
-        await prisma.book.delete({
+        await prisma.series.delete({
             where: {
-                id: bid,
+                id: id,
             },
         });
         return {
             status: 200,
-        }
+            message: "Series deleted successfully",
+        };
     } catch (err) {
         if (
             err instanceof Prisma.PrismaClientKnownRequestError &&
             err.code === 'P2025') {
-            return { status: 404, message: 'Book not found' }
+            return { status: 404, message: 'Series not found' };
         }
         return {
             status: 500,
-            message: "Error deleting book",
-        }
+            message: "Error deleting series",
+        };
     }
 }

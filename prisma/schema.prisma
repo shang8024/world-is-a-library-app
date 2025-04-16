@@ -15,16 +15,14 @@ model User {
   image            String?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
-  twoFactorEnabled Boolean   @default(false)
   Session          Session[]
   Account          Account[]
-  username         String    @unique
+  username         String?    @unique
   displayUsername  String?
-  isAnonymous      Boolean?
-  Books           Book[]    @relation("AuthorBooks")
-  Chapters       Chapter[] @relation("AuthorChapters")
-  Series         Series[]  @relation("AuthorSeries")
-  Reviews        Review[]  @relation("UserReviews")
+  books           Book[]    @relation("AuthorBooks")
+  chapters       Chapter[] @relation("AuthorChapters")
+  series         Series[]  @relation("AuthorSeries")
+  reviews        Review[]  @relation("UserReviews")
   @@unique([email])
   @@map("user")
 }
@@ -82,11 +80,11 @@ model Book {
   authorId String
   Author   User   @relation("AuthorBooks", fields: [authorId], references: [id], onDelete: Cascade)
   seriesId String?
-  Series   Series? @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  Series   Series? @relation(fields: [seriesId], references: [id], onDelete: SetNull)
   chapters Chapter[]  @relation("BookChapters")
   description String
   coverImage String?
-  isDraft Boolean @default(true)
+  isPublic Boolean @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -98,9 +96,8 @@ model Series{
   id       String   @id @default(cuid())
   name    String
   authorId String
-  Author   User   @relation("AuthorSeries", fields: [authorId], references: [id], onDelete: Cascade)
-  Books   Book[] 
-  isDefault Boolean @default(false)
+  author   User   @relation("AuthorSeries", fields: [authorId], references: [id], onDelete: Cascade)
+  books   Book[] 
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -117,7 +114,7 @@ model Review {
   childReviews Review[] @relation("ParentReview")
   content   String
   chapterId String
-  Chapter   Chapter @relation("ChapterReviews", fields: [chapterId], references: [id], onDelete: Cascade)
+  chapter   Chapter @relation("ChapterReviews", fields: [chapterId], references: [id], onDelete: Cascade)
   isSectionReview Boolean @default(false)
   sectionId String? //TODO: optimize the data structure for section reviews
 
@@ -131,14 +128,14 @@ model Chapter {
   id       String   @id @default(cuid())
   title    String
   bookId   String
-  Book     Book     @relation("BookChapters",fields: [bookId], references: [id], onDelete: Cascade)
+  book     Book     @relation("BookChapters",fields: [bookId], references: [id], onDelete: Cascade)
   authorId String
-  Author   User     @relation("AuthorChapters", fields: [authorId], references: [id], onDelete: Cascade)
-  Reviews  Review[] @relation("ChapterReviews")
+  author   User     @relation("AuthorChapters", fields: [authorId], references: [id], onDelete: Cascade)
+  reviews  Review[] @relation("ChapterReviews")
   wordCount Int
   content  String
   sortOrder Float
-  isDraft  Boolean @default(true)
+  isPublic  Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
