@@ -15,13 +15,16 @@ model User {
   image            String?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
-  twoFactorEnabled Boolean   @default(false)
   Session          Session[]
   Account          Account[]
-  username         String    @unique
+  username         String?    @unique
   displayUsername  String?
-  isAnonymous      Boolean?
-
+  twoFactorEnabled Boolean?   @default(false)
+  books           Book[]    @relation("AuthorBooks")
+  chapters       Chapter[] @relation("AuthorChapters")
+  series         Series[]  @relation("AuthorSeries")
+  reviews        Review[]  @relation("UserReviews")
+  bookmarks      Bookmark[] @relation("UserBookmarks")
   @@unique([email])
   @@map("user")
 }
@@ -71,4 +74,87 @@ model Verification {
   updatedAt  DateTime? @updatedAt
 
   @@map("verification")
+}
+
+model Book {
+  id       String   @id @default(cuid())
+  title    String
+  authorId String
+  Author   User   @relation("AuthorBooks", fields: [authorId], references: [id], onDelete: Cascade)
+  seriesId String?
+  Series   Series? @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  chapters Chapter[]  @relation("BookChapters")
+  description String
+  coverImage String?
+  isPublic Boolean @default(true)
+  bookmarks Bookmark[] @relation("UserBookmarks")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("book")
+  @@unique([title, authorId])
+}
+
+model Series{
+  id       String   @id @default(cuid())
+  name    String
+  authorId String
+  author   User   @relation("AuthorSeries", fields: [authorId], references: [id], onDelete: Cascade)
+  books   Book[] 
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("series")
+  @@unique([name, authorId])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  User      User     @relation("UserReviews", fields: [userId], references: [id], onDelete: Cascade)
+  parentReviewId String?
+  ParentReview Review? @relation("ParentReview", fields: [parentReviewId], references: [id], onDelete: Cascade)
+  childReviews Review[] @relation("ParentReview")
+  content   String
+  chapterId String
+  chapter   Chapter @relation("ChapterReviews", fields: [chapterId], references: [id], onDelete: Cascade)
+  isSectionReview Boolean @default(false)
+  sectionId String? //TODO: optimize the data structure for section reviews
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("review")
+}
+
+model Chapter {
+  id       String   @id @default(cuid())
+  title    String
+  bookId   String
+  book     Book     @relation("BookChapters",fields: [bookId], references: [id], onDelete: Cascade)
+  authorId String
+  author   User     @relation("AuthorChapters", fields: [authorId], references: [id], onDelete: Cascade)
+  reviews  Review[] @relation("ChapterReviews")
+  wordCount Int
+  content  String
+  sortOrder Float
+  isPublic  Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("chapter")
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  User      User     @relation("UserBookmarks",fields: [userId], references: [id], onDelete: Cascade)
+  bookId    String
+  book      Book     @relation("UserBookmarks",fields: [bookId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("bookmark")
+  @@unique([userId, bookId])
 }

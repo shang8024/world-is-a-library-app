@@ -79,10 +79,11 @@ const SignUp = () => {
                                         disabled={loading}
                                         type="text"
                                         placeholder='username'
+                                        className='p-2'
                                         {...field}     
                                     />
                                 </FormControl>
-                                <FormMessage />
+                                <FormMessage className='text-sm'/>
                             </FormItem>
                         )}
                     />
@@ -98,10 +99,11 @@ const SignUp = () => {
                                         type="email"
                                         required
                                         placeholder='example@gmail.com'
+                                        className='p-2'
                                         {...field}
                                     />
                                 </FormControl>
-                                <FormMessage />
+                                <FormMessage className='text-sm'/>  
                             </FormItem>
                         )}
                     />
@@ -117,12 +119,13 @@ const SignUp = () => {
                                         type="password"
                                         required
                                         placeholder='********'
+                                        className='p-2'
                                         min={8}
                                         max={20}
                                         {...field}
                                     />
                                 </FormControl>
-                                <FormMessage>
+                                <FormMessage className='text-sm'>
                                     Password must be 8-20 characters long
                                 </FormMessage>
                             </FormItem>

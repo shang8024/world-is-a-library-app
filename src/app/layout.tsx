@@ -1,12 +1,21 @@
 import type { Metadata, Viewport } from "next"
 import { cookies } from "next/headers"
 import { fontVariables } from "@/lib/fonts"
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/components/theme/ThemeProvider"
 import "./globals.css"
 import { cn } from "@/lib/utils"
-import { ActiveThemeProvider } from "@/components/active-theme"
+import { ActiveThemeProvider } from "@/components/theme/ActiveTheme"
 import { Footer } from "@/components/Footer";
 import { Suspense } from "react"
+import { Toaster } from "@/components/ui/sonner"
+import { NavHeader } from "@/components/NavHeader"
+import { ModeSwitcher } from "@/components/theme/ModeSwitcher"
+import Loading from "@/components/Loading"
+import { auth } from "@/lib/auth/auth"
+import { headers } from "next/headers"
+import MobileBottomNavbar from "@/components/navigation/MobileBottomNavbar"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
 const META_THEME_COLORS = {
   light: "#ffffff",
@@ -30,6 +39,10 @@ export default async function RootLayout({
   const cookieStore = await cookies()
   const activeThemeValue = cookieStore.get("active_theme")?.value
   const isScaled = activeThemeValue?.endsWith("-scaled")
+  const session= await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -62,8 +75,29 @@ export default async function RootLayout({
           enableColorScheme
         >
           <ActiveThemeProvider initialTheme={activeThemeValue}>
-            <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
-            {children}
+            <Suspense fallback={<Loading />}>
+            <main className="min-h-svh flex flex-col">
+              <header className="bg-background sticky inset-x-0 top-0 isolate z-10 flex shrink-0 items-center gap-2 border-b">
+                <div className="flex h-14 w-full items-center gap-2 px-4">
+                  <NavHeader />
+                  
+                  <div className="ml-auto flex items-center gap-2">
+                    {!user && <Button
+                      variant="outline"
+                      className="group/toggle flex align-items-center p-2"          
+                    >
+                      <Link href="/login">SignIn</Link>
+                    </Button>}
+                    <ModeSwitcher />
+                  </div>
+                </div>
+              </header>
+              <div className="flex-1 min-h-svh">
+                {children}
+                {user && <MobileBottomNavbar/>}
+              </div>
+            </main>
+            <Toaster/>
             </Suspense>
             {/* Footer */}
             <Footer />

@@ -74,9 +74,10 @@ const ResetPassword = () => {
                                         type="password"
                                         placeholder='************'
                                         required
+                                        className='p-2'
                                         {...field} />
                                 </FormControl>
-                                <FormMessage>
+                                <FormMessage className='text-sm'>
                                     Password must be 8-20 characters long
                                 </FormMessage>
                             </FormItem>
@@ -93,11 +94,12 @@ const ResetPassword = () => {
                                         disabled={loading}
                                         type="password"
                                         placeholder='*************'
+                                        className='p-2'
                                         {...field}
                                         required
                                     />
                                 </FormControl>
-                                <FormMessage />
+                                <FormMessage className='text-sm'/>
                             </FormItem>
                         )}
                     />

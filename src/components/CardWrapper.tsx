@@ -11,7 +11,7 @@ import {
 interface CardWrapperType {
   children: React.ReactNode;
   cardTitle: string;
-  cardDescription: string;
+  cardDescription?: string;
   cardFooterLinkTitle?: string;
   cardFooterDescription?: string;
   cardFooterLink?: string;
@@ -32,7 +32,7 @@ const CardWrapper = ({
       <Card className='p-6 shadow-md w-md'>
         <CardHeader>
           <CardTitle className="text-2xl">{cardTitle}</CardTitle>
-          <CardDescription>{cardDescription}</CardDescription>
+          {cardDescription && <CardDescription>{cardDescription}</CardDescription>}
         </CardHeader>
         <CardContent>{children}</CardContent>
         {cardFooterLink && (

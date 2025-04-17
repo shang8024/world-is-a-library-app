@@ -73,9 +73,10 @@ const ForgotPassword = () => {
                     placeholder='example@gmail.com'
                     required
                     {...field}
+                    className='p-2'
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className='text-sm'/>
               </FormItem>
             )}
           />
