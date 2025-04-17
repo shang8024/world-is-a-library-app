@@ -1,9 +1,9 @@
 "use client"
-import React, { useState } from "react";
-import ChapterEditor from "@/components/editor/ChapterEditor";
+import React, { useEffect, useState,useTransition } from "react";
 import { SeriesListDashboard } from "@/components/book/BookSeries";
 import { useDashboardContext } from "@/hooks/useDashboardContext";
 import { User } from "@prisma/client";
+import { toast } from "sonner";
 import {
   Avatar,
   AvatarFallback,
@@ -12,6 +12,9 @@ import {
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { createSeries } from "@/lib/book/series-actions";
+import { useRouter } from "next/navigation";
+import { Book, Series } from "@prisma/client";
 
 interface StatisticsProps {
   stats: {
@@ -58,47 +61,112 @@ const Statistics = ({ stats, user }: StatisticsProps) => {
 }
 
 export default function DashboardPage() {
-  const {user} = useDashboardContext()
-  // if evening, show a different message
+  const {user, } = useDashboardContext()
   const currentHour = new Date().getHours();
   const isEvening = currentHour >= 18 && currentHour < 24;
   const greeting = isEvening ? "Good Evening" : "Good Morning";
-  const {serieslist, stats} = useDashboardContext()
+  const {serieslist, stats, setSeries} = useDashboardContext()
   const [searchFilter, setSearchFilter] = useState<string>("")
   const [filteredSeries, setFilteredSeries] = useState(serieslist);
+  const [newSeries, setNewSeries] = useState<string>("")
+  const [isPending, startTransition] = useTransition();
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchFilter(event.target.value);
-    const filter = event.target.value.toLowerCase();
-    const filtered = serieslist.filter((series) =>
-      series.name.toLowerCase().includes(filter) || series.books.some((book) =>
-        book.title.toLowerCase().includes(filter)
-      )
-    );
-    setFilteredSeries(filtered);
-  };
+  const filterList = (serieslist: (Series & { books: Book[] })[], filter: string) => {
+    const filterlowercase = filter.toLowerCase()
+    // filter out the books and series that do not match the filter
+    return serieslist.filter((series) => {
+      const seriesName = series.name.toLowerCase()
+      const books = series.books.filter((book) => book.title.toLowerCase().includes(filterlowercase))
+      return seriesName.includes(filterlowercase) || books.length > 0
+    }).map((series) => {
+      if (series.name.toLowerCase().includes(filterlowercase)) return series
+      const books = series.books.filter((book) => book.title.toLowerCase().includes(filterlowercase))
+      return {
+        ...series,
+        books: books,
+      }
+    })
+
+  }
+
+  useEffect(() => {
+    setFilteredSeries(filterList(serieslist, searchFilter));
+  }
+  , [serieslist, searchFilter]);
+
+  const handleCreateSeries = async () => {
+    if (!newSeries || newSeries.trim() === "") {
+      toast.error("Series name cannot be empty");
+      return;
+    }
+    // if such name exists, show error
+    const existingSeries = serieslist.find((series) => series.name === newSeries);
+    if (existingSeries) {
+      toast.error("Series with this name already exists");
+      return;
+    }
+    startTransition(async () => {
+      toast.promise(
+        (async () => {
+          const result = await createSeries({
+            name: newSeries,
+          });
+          if (result.status !== 200 || !result.data) throw new Error(result.message)
+          return result.data
+        })(),
+        {
+          loading: "Loading...",
+          success: (data) => {
+            // add the new series to the serieslist
+            const newSeries = {books:[], ...data} as Series & { books: Book[] };
+            const updatedSeries = [ newSeries,...serieslist];
+            setSeries(updatedSeries);
+            return `Series created successfully`;
+          },
+          error: (error) => {
+            return error.message || "Something went wrong";
+          },
+        }
+      );
+    });
+  }
 
   return (
     <div className="flex flex-col w-full pt-6 md:p-10 gap-2 sm:px-6 p-4">
       <h1 className="text-2xl font-bold ">{greeting}, {user.name}</h1>
       <Statistics stats={stats} user={user} />
-      <section id="books" className="scroll-mt-[60px]">
+      <section id="books" className="scroll-mt-[60px] w-full">
         <h2 className="text-lg font-semibold mt-2">Your Books & Sereis</h2>
         <div className="flex justify-center gap-4 mb-4 w-full">
         <Input
           type="text"
           placeholder="Search books and series..."
           value={searchFilter}
-          onChange={handleSearchChange}
-          className="w-full flex-1 p-2 min-w-[50%] max-w-[90%]"
+          onChange={(e) => setSearchFilter(e.target.value)}
+          disabled={isPending}
+          className="w-full flex-1 p-2"
         />
         </div>
-        <div className="flex justify-start gap-4">
-          <Button variant="outline" className="text-lg">
-            <Link href="/dashboard/create-book">Create Book</Link>
+        <div className="flex justify-start gap-1 flex-wrap w-full md:flex-nowrap">
+          <div className="flex w-full md:w-fit">
+          <Input
+            type="text"
+            placeholder="Create series..."
+            value={newSeries}
+            onChange={(e) => setNewSeries(e.target.value)}
+            disabled={isPending}
+            className="w-full flex-1 p-2 md:min-w-[50%] md:max-w-[60%] lg:max-w-[90%] rounded-r-none"
+          />
+          <Button variant="outline" 
+            className="md:text-lg rounded-l-none cursor-pointer" 
+            onClick={handleCreateSeries}
+            disabled={isPending}
+          >
+            Create Series
           </Button>
-          <Button variant="outline" className="text-lg">
-            <Link href="/dashboard/create-book">Create Series</Link>
+          </div>
+          <Button variant="outline" className="md:text-lg">
+            <Link href="/dashboard/create-book">Create Book</Link>
           </Button>
         </div>
         <div className="w-full p-2">

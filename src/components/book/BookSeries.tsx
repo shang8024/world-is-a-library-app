@@ -22,7 +22,7 @@ interface SeriesListItemProps {
   isEditing?: boolean;
   seriesActions?: {
     finishEditing: () => void;
-    handleSubmit: (newValue: string) => void;
+    handleSubmit: (newValue: string, callback:()=>void) => void;
     startEditing: () => void;
     deleteSeries: () => void;
   }
@@ -63,8 +63,8 @@ const SeriesListItem = ({ series, editable, isLoading, isEditing, seriesActions 
                   variant="ghost"
                   onClick={() => {
                     setInputValue(inputValue.trim().replace(/\s+/g, " "));
-                    seriesActions?.handleSubmit(inputValue)}
-                  }
+                    seriesActions?.handleSubmit(inputValue, () => setInputValue(series.name));
+                  }}
                   disabled={isLoading}
                   className="hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 p-2"
                 >
@@ -96,7 +96,11 @@ const SeriesListItem = ({ series, editable, isLoading, isEditing, seriesActions 
         </div>
         <Separator className="w-full bg-border h-px" />
         <CollapsibleContent className="space-y-2">
-          {editable ? (
+          { !series.books || series.books.length === 0 ? (
+            <div className="flex items-center justify-center w-full h-full p-4 text-sm text-muted-foreground">
+              No book found
+            </div>
+          ) : editable ? (
             <BookListDashboard books={series.books}/>
           ) : (
             <BookListPublic books ={series.books}/>
@@ -126,11 +130,17 @@ const SeriesListDashboard = ({ serieslist }: SeriesListProps) => {
     setEditingIndex(null);
   }
 
-  const handleSubmit = (index: number, newValue: string) => {
+  const handleSubmit = (id: string, newValue: string, callback:()=>void) => {
     const name = newValue.trim().replace(/\s+/g, " ");
-    const id = serieslist[index].id;
     if (id == '-1') return;
-    if (name !== "" && serieslist[index].name !== name) {
+    const index = serieslist.findIndex((series) => series.id === id);
+    if (name === "" || serieslist[index].name === name) {
+      finishEditing();
+      callback();
+
+      return;
+    }
+    console.log("handleSubmit", id, name, serieslist[index].name)
       setIsLoading(true);
       toast.promise(
         (async () => {
@@ -154,21 +164,21 @@ const SeriesListDashboard = ({ serieslist }: SeriesListProps) => {
             return `Book information edited successfully`;
           },
           error: (error) => {
+            callback();
             return error.message || "Something went wrong";
           },
           finally: () => {
-            
             finishEditing();
           }
         }
       );
-    }
+
   };
 
-  const handleDelete = (index: number) => {
+  const handleDelete = (id: string) => {
     //TODO: server action 
-    const id = serieslist[index].id;
     if (id == '-1') return;
+    const index = serieslist.findIndex((series) => series.id === id);
     setIsLoading(true);
     toast.promise(
       (async () => {
@@ -181,10 +191,11 @@ const SeriesListDashboard = ({ serieslist }: SeriesListProps) => {
         loading: "Loading...",
         success: () => {
           // add all books in that series to ungrouped
-          const ungroupedBooks = serieslist[index].books
+          const ungroupedBooks = serieslist[index]?.books || [];
           const updatedSeries = [...serieslist];
+          const ungroupedIndex = updatedSeries.findIndex((series) => series.id === '-1');
+          updatedSeries[ungroupedIndex].books.push(...ungroupedBooks);
           updatedSeries.splice(index, 1);
-          updatedSeries[-1].books.push(...ungroupedBooks)
           setSeries(updatedSeries);
           return `Series deleted successfully`;
         },
@@ -200,21 +211,27 @@ const SeriesListDashboard = ({ serieslist }: SeriesListProps) => {
 
   return (
     <div className="grid w-full  gap-4">
-      {serieslist.map((series, index) => (
-        <SeriesListItem
-          series={series}
-          key={index}
-          editable={true}
-          isLoading={isLoading}
-          isEditing={editingIndex === index}
-          seriesActions={{
-            finishEditing: () => setEditingIndex(null),
-            handleSubmit: (newValue) => handleSubmit(index, newValue),
-            startEditing: () => setEditingIndex(index),
-            deleteSeries: () => handleDelete(index),
-          }}
-        />
-      ))}
+      { !serieslist || serieslist.length === 0 ? (
+        <div className="flex items-center justify-center w-full h-full p-4 text-sm text-muted-foreground">
+          No results found
+        </div>
+      ) : (
+        serieslist.map((series, index) => (
+          <SeriesListItem
+            series={series}
+            key={series.id}
+            editable={true}
+            isLoading={isLoading}
+            isEditing={editingIndex === index}
+            seriesActions={{
+              finishEditing: () => setEditingIndex(null),
+              handleSubmit: (newValue, callback) => handleSubmit(series.id, newValue,callback),
+              startEditing: () => setEditingIndex(index),
+              deleteSeries: () => handleDelete(series.id),
+            }}
+          />
+        )))
+      }
     </div>
   )
 }
