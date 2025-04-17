@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Series, Book } from "@prisma/client"
-import { ChevronDownIcon, ChevronUpIcon, Pencil, Check, CircleX  } from "lucide-react"
+import { ChevronDownIcon, ChevronUpIcon, Pencil, Check, CircleX } from "lucide-react"
 import {toast} from 'sonner'
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/collapsible"
 import { Separator } from "@/components/ui/separator"
 import { updateSeries, deleteSeries } from "@/lib/book/series-actions"
-import { BookList } from "@/components/book/BookList"
+import { BookListDashboard, BookListPublic } from "@/components/book/BookList"
 import { useDashboardContext } from "@/hooks/useDashboardContext"
 
 interface SeriesListItemProps {
@@ -35,7 +35,7 @@ interface SeriesListProps {
 
 const SeriesListItem = ({ series, editable, isLoading, isEditing, seriesActions }: SeriesListItemProps) => {
     const [inputValue, setInputValue] = useState<string>(series.name)
-    const [isOpen, setIsOpen] = React.useState(false)
+    const [isOpen, setIsOpen] = React.useState(true)
 
     return (
       <Collapsible
@@ -96,7 +96,11 @@ const SeriesListItem = ({ series, editable, isLoading, isEditing, seriesActions 
         </div>
         <Separator className="w-full bg-border h-px" />
         <CollapsibleContent className="space-y-2">
-          <BookList books={series.books} editable={editable}/>
+          {editable ? (
+            <BookListDashboard books={series.books}/>
+          ) : (
+            <BookListPublic books ={series.books}/>
+          )}
         </CollapsibleContent>
       </Collapsible>
     )
@@ -112,10 +116,10 @@ const SeriesListPublic = ({ serieslist }: SeriesListProps) => {
   )
 }
 
-const SeriesListDashboard = () => {
+const SeriesListDashboard = ({ serieslist }: SeriesListProps) => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const {serieslist, setSeries} = useDashboardContext();
+  const {setSeries} = useDashboardContext();
 
   const finishEditing = () => {
     setIsLoading(false);

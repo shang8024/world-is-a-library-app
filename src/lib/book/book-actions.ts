@@ -3,12 +3,14 @@ import prisma from "@/db"
 import {auth} from "@/lib/auth/auth"
 import { Prisma } from '@prisma/client'
 import { headers } from "next/headers"
+import { Book } from "@prisma/client"
 
 type BookForm = {
     id?: string,
     title: string,
     isPublic: boolean,
     description: string,
+    seriesId: string | null,
 }
 
 export type ActionResult<T = void> = {
@@ -17,7 +19,7 @@ export type ActionResult<T = void> = {
     data?: T
   }
 
-export async function createBook(data: BookForm): Promise<ActionResult> {
+export async function createBook(data: BookForm): Promise<ActionResult<Book>> {
     try {
         const session = await auth.api.getSession({
             headers: await headers()
@@ -38,11 +40,12 @@ export async function createBook(data: BookForm): Promise<ActionResult> {
                 description: data.description || "",
                 isPublic: data.isPublic,
                 authorId: session.user.id,
+                seriesId: data.seriesId || null,
             },
         })
-        console.log("Book created successfully", book)
         return {
-            status: 200
+            status: 200,
+            data: book,
         }
     } catch (err) {
         if (
@@ -57,7 +60,7 @@ export async function createBook(data: BookForm): Promise<ActionResult> {
     }
 }
 
-export async function updateBook(data: BookForm): Promise<ActionResult> {
+export async function updateBook(data: BookForm): Promise<ActionResult<Book>> {
     try {
         const session = await auth.api.getSession({
             headers: await headers()
@@ -81,7 +84,7 @@ export async function updateBook(data: BookForm): Promise<ActionResult> {
                 status: 403,
             }
         }
-        await prisma.book.update({
+        const res = await prisma.book.update({
             where: {
                 id: data.id,
             },
@@ -89,10 +92,12 @@ export async function updateBook(data: BookForm): Promise<ActionResult> {
                 title: data.title,
                 description: data.description || "",
                 isPublic: data.isPublic,
+                seriesId: data.seriesId || null,
             },
         })
         return {
             status: 200,
+            data: res,
         }
     } catch (err) {
         if (

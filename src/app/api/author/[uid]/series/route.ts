@@ -33,7 +33,6 @@ export async function GET(req: NextRequest, { params }: { params: { uid: string 
     createdAt: new Date(),
     updatedAt: new Date(),
     authorId: user.id,
-    isDefault: true,
     books: ungroupedBooks,
   } as Series & { books: Book[] }
   const seriesWithBooksArray = [...seriesWithBooks];
