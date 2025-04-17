@@ -39,7 +39,7 @@ function BookCardListItem({ book, editable, isLoading, onDelete}:  {book: Book }
                 book={book}
                 onClick={() => 
                 editable 
-                  ? router.push(`/dashboard/books/${book.id}/edit-chapters`)
+                  ? router.push(`/dashboard/book-editor/${book.id}/chapters`)
                   : router.push(`/books/${book.id}`)
                 }
               />
