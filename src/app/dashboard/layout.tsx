@@ -50,7 +50,7 @@ export default function DashboardLayout({
                   onClick={async() => {await signOut({
                     fetchOptions: {
                       onSuccess: () => {
-                        router.push("/")
+                        window.location.href = "/"
                       }
                     }
                   })}}>

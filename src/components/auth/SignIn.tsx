@@ -42,8 +42,8 @@ const SignIn = () => {
             onSuccess: () => {
                 setSuccess("LoggedIn successfully")
                 setTimeout(() => {
-                    router.push('/')
-                }, 2000)
+                    window.location.href = "/dashboard"
+                }, 1000)
             },
             onError: (ctx) => {
                 /* Whenever user tried to signin but email is not verified it catches the error and display the error */

@@ -30,7 +30,7 @@ export default function MobileBottomNavbar() {
                         onClick={async() => {await signOut({
                             fetchOptions: {
                                 onSuccess: () => {
-                                    router.push("/")
+                                    window.location.href = "/"
                                 }
                           }
                         })}
