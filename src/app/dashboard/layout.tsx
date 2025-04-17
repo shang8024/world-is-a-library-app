@@ -23,7 +23,7 @@ export default function DashboardLayout({
   } = authClient.useSession();
 
   return (
-    <div className="flex min-h-svh items-center justify-center">
+    <div className="flex min-h-svh  items-center justify-center">
     {
       isPending ? <Loading />
       : sessionError || !session ? (
@@ -38,15 +38,15 @@ export default function DashboardLayout({
         </div>
       ) : (
         <DashboardContextProvider user={session.user as User}>
-          <div className="flex h-fit w-full">
-            <aside className="hidden w-56 bg-gray-100 border-r px-4 py-6 sm:flex flex-col space-y-4 dark:bg-gray-800 dark:border-gray-700">
-              <h2 className="text-lg font-bold mb-2">Navigation</h2>
-                <Link href="/dashboard" className="text-sm hover:underline">Dashboard</Link>
-                <Link href="/dashboard/books" className="text-sm hover:underline">Manage Works</Link>
-                <Link href="/dashboard/create-book" className="text-sm hover:underline">Create Book</Link>
-              <h2 className="text-lg font-bold mb-2">Account</h2>
-                <Link href="/dashboard/account" className="text-sm hover:underline">Account Settings</Link>
-                <div className="text-sm hover:underline cursor-pointer"
+          <div className="flex h-fit w-full min-h-svh">
+            <aside className="hidden sm:w-40 lg:w-56 bg-gray-100 border-r px-4 py-6 sm:flex flex-col space-y-4 dark:bg-gray-800 dark:border-gray-700">
+              <h2 className="text-lg font-bold mb-2 lg:text-xl border-b-2">Navigation</h2>
+                <Link href="/dashboard#" className="text-sm hover:underline lg:text-lg">Dashboard</Link>
+                <Link href="/dashboard#books" className="text-sm hover:underline lg:text-lg">Manage Works</Link>
+                <Link href="/dashboard/create-book" className="text-sm hover:underline lg:text-lg">Create Book</Link>
+              <h2 className="text-lg font-bold mb-2 lg:text-xl border-b-2">Account</h2>
+                <Link href="/dashboard/account" className="text-sm hover:underline lg:text-lg">Account Settings</Link>
+                <div className="text-sm hover:underline cursor-pointer lg:text-lg"
                   onClick={async() => {await signOut({
                     fetchOptions: {
                       onSuccess: () => {
@@ -57,7 +57,9 @@ export default function DashboardLayout({
                   Logoout
                 </div>
             </aside>
-            {children}
+            <div className="flex-1 ">
+              {children}
+            </div>
           </div>
             
         </DashboardContextProvider>

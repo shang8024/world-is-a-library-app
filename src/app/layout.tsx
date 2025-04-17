@@ -83,7 +83,7 @@ export default async function RootLayout({
                   </div>
                 </div>
               </header>
-              <div className="flex-1">
+              <div className="flex-1 min-h-svh">
                 {children}
                 {user && <MobileBottomNavbar/>}
               </div>

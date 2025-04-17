@@ -63,7 +63,7 @@ export function DashboardContextProvider({
     <DashboardContext.Provider value={{ serieslist, user, setSeries, stats }}>
       {isLoading ? <Loading/>
       : error ? (
-        <div className="flex justify-center items-center h-screen">
+        <div className="h-fit">
           <p className="text-2xl text-red-500">{error}</p>
         </div>
       ) : (
