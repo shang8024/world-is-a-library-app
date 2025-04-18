@@ -59,6 +59,13 @@ export const auth = betterAuth({
     defaultCookieAttributes: {
       secure: true,
       sameSite: "none",
+      domain: process.env.NEXTAUTH_COOKIE_DOMAIN || undefined,
+    },
+    cookie: {
+      sameSite: "none",
+      secure: true,
+      domain: process.env.NEXTAUTH_COOKIE_DOMAIN || undefined,
+      path: "/",
     },
   },
   plugins: [
