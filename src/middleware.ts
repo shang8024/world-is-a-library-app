@@ -9,16 +9,6 @@ const beforeLoginRoutes = ['/login', '/signup', '/forgot-password','/reset-passw
 export async function middleware(req: NextRequest) {
   // Clone the URL
   const url = req.nextUrl.clone();
-  // if valid subdomain (uid), rewrite to /[uid]/pathname
-  // all /[uid] routes are public and read-only
-  const host = req.headers.get('host');
-  const subdomain = getValidSubdomain(host);
-  if (subdomain) {
-    // Subdomain available, rewriting
-    console.log(`>>> Rewriting: ${url.pathname} to /users/${subdomain}${url.pathname}`);
-    url.pathname = `/users/${subdomain}${url.pathname}`;
-    return NextResponse.rewrite(url);
-  }
   // TODO: get session cookie from server
   const sessionCookie = getSessionCookie(req);
   // TODO: if no valid cookie and is protected route, redirect to login
