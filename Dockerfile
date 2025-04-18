@@ -1,7 +1,7 @@
 FROM node:20-alpine
 
 # Stage 1: Install dependencies
-WORKDIR /usr/src/app
+WORKDIR /src/app
 COPY package.json package-lock.json ./
 RUN npm install
 
@@ -15,9 +15,9 @@ RUN npm run build
 
 # Stage 3: Production server
 ENV NODE_ENV=production
-COPY --from=builder /usr/src/app/public ./public
-COPY --from=builder /usr/src/app/.next/standalone ./
-COPY --from=builder /usr/src/app/.next/static ./.next/static
+COPY --from=builder /src/app/public ./public
+COPY --from=builder /src/app/.next/standalone ./
+COPY --from=builder /src/app/.next/static ./.next/static
 # Expose the application port (assuming your app runs on port 3000)
 EXPOSE 3000
 
