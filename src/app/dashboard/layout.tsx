@@ -21,7 +21,7 @@ export default function DashboardLayout({
   } = authClient.useSession();
 
   return (
-    <div className="flex min-h-[calc(100vh-56px)]  items-start justify-start">
+    <div className="flex min-h-[calc(100vh-56px)] w-screen items-start justify-start">
     {
       isPending ? <Loading />
       : sessionError || !session ? (

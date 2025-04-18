@@ -58,8 +58,7 @@ export function DashboardContextProvider({
           if (res.status !== 200 || !res.data) throw new Error(res.message);
           return res.data;
         })
-        .then((data) => {
-          console.log(data);setSeries(data)})
+        .then((data) => setSeries(data))
         .catch((err) => setError(err || "Failed to load series"))
         .finally(() => setFetching(false));
     }
