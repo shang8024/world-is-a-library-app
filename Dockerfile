@@ -1,27 +1,25 @@
+FROM oven/bun:alpine AS base
 
+# Stage 1: Install dependencies
+FROM base AS deps
+WORKDIR /app
+COPY package.json bun.lockb ./
+RUN bun install --frozen-lockfile
 
-# Dockerfile
-
-# Use an official Node.js runtime as the base image
-FROM node:20-alpine
-
-# Set the working directory in the container
-WORKDIR /usr/src/app
-
-# Copy package.json and package-lock.json to the container
-COPY package.json package-lock.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the application files to the container
+# Stage 2: Build the application
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+RUN bun run build
 
-# Build the Next.js application for production
-RUN npm run build
+# Stage 3: Production server
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
-# Expose the application port (assuming your app runs on port 3000)
 EXPOSE 3000
-
-# Start the application
-CMD ["npm", "start"]
+CMD ["bun", "run", "server.js"]

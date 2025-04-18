@@ -2,8 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  output:'export',
-  distDir: '_static',
+  output:'standalone',
   images: {
     unoptimized: true,
   },
