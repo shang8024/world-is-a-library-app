@@ -1,5 +1,3 @@
-// middleware.ts]
-import { getValidSubdomain } from '@/utils/subdomain';
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
