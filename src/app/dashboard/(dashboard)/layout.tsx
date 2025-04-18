@@ -29,7 +29,7 @@ export default function DashboardLayout({
                   }
                 }
         })}}}>
-          Logoout
+          Logout
         </div>
       </aside>
       <div className="flex-1 ">
