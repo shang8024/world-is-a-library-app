@@ -13,7 +13,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createSeries } from "@/lib/book/series-actions";
-import { useRouter } from "next/navigation";
 import { Book, Series } from "@prisma/client";
 
 interface StatisticsProps {

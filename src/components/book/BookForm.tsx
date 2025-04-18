@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 import React from 'react'
 import { useState, useTransition } from 'react'
@@ -227,7 +228,7 @@ function EditBookInfoForm({book} : {book: Book}) {
               })(),
               {
                 loading: "Loading...",
-                success: (data) => {
+                success: () => {
                   setTimeout(() => {
                       router.push("/dashboard?refresh=1");
                   }, 500);

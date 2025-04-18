@@ -3,9 +3,6 @@ import { getValidSubdomain } from '@/utils/subdomain';
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
-// RegExp for public files
-const PUBLIC_FILE = /\.(.*)$/; // Files
-
 const protectedRoutes = ['/dashboard','/profile','/settings'] // Add your protected routes here
 const beforeLoginRoutes = ['/login', '/signup', '/forgot-password','/reset-password'] // Add your before login routes here
 

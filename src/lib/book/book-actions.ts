@@ -32,7 +32,7 @@ const validateSeriesId = async (seriesId: string | null, authorId: string) => {
     return seriesId
 }
 
-const validateBookId = async (bookId: string | undefined, authorId: string) => {
+export const validateBookId = async (bookId: string | undefined, authorId: string) => {
     if (!bookId) throw new Error("ACCESS_DENIED")
     const book = await prisma.book.findFirst({
         where: {
@@ -43,6 +43,7 @@ const validateBookId = async (bookId: string | undefined, authorId: string) => {
     if (!book || book.authorId !== authorId) {
         throw new Error("ACCESS_DENIED")
     }
+    return book
 }
 
 export async function createBook(data: BookForm): Promise<ActionResult<Book>> {

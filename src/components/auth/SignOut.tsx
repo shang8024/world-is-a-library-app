@@ -9,7 +9,7 @@ const SignOut = () => {
   return (
     <Button
     className='p-2 bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring focus-visible:ring-[3px] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none'
-    onClick={async(e) => {await signOut({
+    onClick={async() => {await signOut({
       fetchOptions: {
         onSuccess: () => {
           router.push("/")
