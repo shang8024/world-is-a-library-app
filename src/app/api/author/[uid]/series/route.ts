@@ -2,7 +2,7 @@ import prisma from '@/db'
 import {Series, Book} from '@prisma/client'
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(req: NextRequest, { params }: { params: { uid: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ uid: string } >}) {
     const {uid} = await params;
     const user = await prisma.user.findUnique({
         where: { username: uid },

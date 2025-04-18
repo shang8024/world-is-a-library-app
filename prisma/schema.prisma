@@ -136,7 +136,7 @@ model Chapter {
   author   User     @relation("AuthorChapters", fields: [authorId], references: [id], onDelete: Cascade)
   reviews  Review[] @relation("ChapterReviews")
   wordCount Int
-  content  String
+  content  String   @db.Text
   sortOrder Float
   isPublic  Boolean @default(true)
 

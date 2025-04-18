@@ -1,7 +1,7 @@
 import prisma from '@/db'
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(req: NextRequest, { params }: { params: { cid: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ cid: string } >}) {
     const {cid} = await params;
     // count sats, include books count, chapter count, word count, and series count
 

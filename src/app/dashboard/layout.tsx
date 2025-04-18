@@ -29,7 +29,7 @@ export default function DashboardLayout({
           {sessionError && (
             <p className="text-2xl text-red-500">{sessionError?.message || "Some thing went wrong"}</p>
           )}
-          <p className="mt-4 text-lg">Please sign in to access your dashboard.</p>
+          <p className="mt-4 text-lg text-center">Please sign in to access your dashboard.</p>
           <Button variant="outline" className="mt-4" onClick={() => router.push("/login")}>
             Sign In
           </Button>
