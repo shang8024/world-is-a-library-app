@@ -7,6 +7,7 @@ const beforeLoginRoutes = ['/login', '/signup', '/forgot-password','/reset-passw
 export async function middleware(req: NextRequest) {
   // Clone the URL
   const url = req.nextUrl.clone();
+  
   // TODO: get session cookie from server
   const sessionCookie = getSessionCookie(req);
   // TODO: if no valid cookie and is protected route, redirect to login
@@ -23,7 +24,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next()
+  response.headers.set("Access-Control-Allow-Origin", "https://www.world-is-a-library.com")
+  response.headers.set("Access-Control-Allow-Methods", "GET,OPTIONS,PATCH,DELETE,POST,PUT")
+  response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+  return response
 }
 
 export const config = {
