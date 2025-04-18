@@ -16,6 +16,7 @@ import { headers } from "next/headers"
 import MobileBottomNavbar from "@/components/navigation/MobileBottomNavbar"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import AvatarDropdownMenu from "@/components/navigation/AvatarDropdownMenu"
 
 const META_THEME_COLORS = {
   light: "#ffffff",
@@ -82,12 +83,13 @@ export default async function RootLayout({
                   <NavHeader />
                   
                   <div className="ml-auto flex items-center gap-2">
-                    {!user && <Button
+                    {!user ? <Button
                       variant="outline"
                       className="group/toggle flex align-items-center p-2"          
                     >
                       <Link href="/login">SignIn</Link>
-                    </Button>}
+                    </Button>
+                    : <AvatarDropdownMenu user={user} />}
                     <ModeSwitcher />
                   </div>
                 </div>
