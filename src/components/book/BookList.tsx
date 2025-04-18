@@ -101,12 +101,11 @@ function CarouselDisplay({books, editable, onDelete, isLoading}: {books: Book[] 
 }
  
 function BookListDashboard({ books }: {books: Book[] }) {
-  const [isLoading, setIsLoading] = useState(false)
-  const {serieslist, setSeries} = useDashboardContext()
+  const {serieslist, setSeries, isLoading, setLoading} = useDashboardContext()
 
   const handleDelete = async (bookId: string) => {
     if (!confirm("Are you sure you want to delete this book?")) return
-    setIsLoading(true)
+    setLoading(true)
     toast.promise(
       (async () => {
           const result = await deleteBook(bookId);
@@ -131,7 +130,7 @@ function BookListDashboard({ books }: {books: Book[] }) {
           return error.message || "Something went wrong";
         },
         finally: () => {
-          setIsLoading(false);
+          setLoading(false);
         }
       }
     );

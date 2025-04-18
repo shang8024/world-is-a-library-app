@@ -31,8 +31,7 @@ interface Book {
 }
 
 function BookForm({book, action}: {book?: Book, action: (values: z.infer<typeof BookSchema>, callback: () => void) => void}) {
-    const {serieslist} = useDashboardContext()
-    const [loading, setLoading] = useState(false)
+    const {serieslist,isLoading, setLoading} = useDashboardContext()
     const form = useForm<z.infer<typeof BookSchema>>({
         resolver: zodResolver(BookSchema),
         defaultValues: {
@@ -58,7 +57,7 @@ function BookForm({book, action}: {book?: Book, action: (values: z.infer<typeof 
                                 <FormLabel>Title</FormLabel>
                                 <FormControl>
                                     <Input
-                                        disabled={loading}
+                                        disabled={isLoading}
                                         type="text"
                                         placeholder='Enter book title'
                                         {...field}
@@ -82,7 +81,7 @@ function BookForm({book, action}: {book?: Book, action: (values: z.infer<typeof 
                                     id="label-demo-message" 
                                     placeholder="Message"
                                     className="resize-none p-2"
-                                    disabled={loading}
+                                    disabled={isLoading}
                                     {...field}
                                   />
                                 </FormControl>
@@ -98,7 +97,7 @@ function BookForm({book, action}: {book?: Book, action: (values: z.infer<typeof 
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Series</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoading}>
                                     <FormControl>
                                         <SelectTrigger className='w-full p-2'>
                                             <SelectValue placeholder="Select a verified email to display" />
@@ -127,7 +126,7 @@ function BookForm({book, action}: {book?: Book, action: (values: z.infer<typeof 
                                   <Switch.Root
                                     className="relative h-[20px] w-9 cursor-default rounded-full outline-none focus-visible:ring-[3px]  data-[state=checked]:bg-primary data-[state=unchecked]:bg-input  disabled:cursor-not-allowed disabled:opacity-50"
                                     id="airplane-mode"
-                                    disabled={loading}
+                                    disabled={isLoading}
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
                                     ref={field.ref}
@@ -142,7 +141,7 @@ function BookForm({book, action}: {book?: Book, action: (values: z.infer<typeof 
                         )}
                     />
                     <div className='flex justify-end items-center space-x-2'>
-                    <Button disabled={loading} type="submit" className='p-2 bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring focus-visible:ring-[3px] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none' >save cahnges</Button>
+                    <Button disabled={isLoading} type="submit" className='p-2 bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring focus-visible:ring-[3px] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none' >save cahnges</Button>
                     </div>
                 </form>
         </Form>

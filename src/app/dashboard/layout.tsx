@@ -1,14 +1,12 @@
 "use client"
 import React from "react";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode } from "react";
 import { DashboardContextProvider } from "@/hooks/useDashboardContext";
 import { authClient } from "@/lib/auth/auth-client"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button";
 import { User } from "@prisma/client";
 import Loading from "@/components/Loading";
-import Link from "next/link";
-import { signOut } from "@/lib/auth/auth-client";
 
 export default function DashboardLayout({
   children,
@@ -23,7 +21,7 @@ export default function DashboardLayout({
   } = authClient.useSession();
 
   return (
-    <div className="flex min-h-svh  items-center justify-center">
+    <div className="flex min-h-[calc(100vh-56px)]  items-start justify-start">
     {
       isPending ? <Loading />
       : sessionError || !session ? (

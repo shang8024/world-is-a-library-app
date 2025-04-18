@@ -122,11 +122,10 @@ const SeriesListPublic = ({ serieslist }: SeriesListProps) => {
 
 const SeriesListDashboard = ({ serieslist }: SeriesListProps) => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const {setSeries} = useDashboardContext();
+  const {setSeries, isLoading, setLoading} = useDashboardContext();
 
   const finishEditing = () => {
-    setIsLoading(false);
+    setLoading(false);
     setEditingIndex(null);
   }
 
@@ -141,7 +140,7 @@ const SeriesListDashboard = ({ serieslist }: SeriesListProps) => {
       return;
     }
     console.log("handleSubmit", id, name, serieslist[index].name)
-      setIsLoading(true);
+      setLoading(true);
       toast.promise(
         (async () => {
             const result = await updateSeries({
@@ -179,7 +178,7 @@ const SeriesListDashboard = ({ serieslist }: SeriesListProps) => {
     //TODO: server action 
     if (id == '-1') return;
     const index = serieslist.findIndex((series) => series.id === id);
-    setIsLoading(true);
+    setLoading(true);
     toast.promise(
       (async () => {
           const result = await deleteSeries(id);
