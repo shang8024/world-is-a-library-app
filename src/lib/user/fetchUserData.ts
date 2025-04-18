@@ -33,5 +33,13 @@ interface UserData {
       };
       throw error;
     }
-    return user;
+    if (user.username === null) {
+      const error: FetchError = {
+        message: `User with id "${uid}" has a null username`,
+        status: 500,
+        isFetchError: true,
+      };
+      throw error;
+    }
+    return user as UserData;
   }

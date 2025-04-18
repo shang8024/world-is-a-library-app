@@ -32,7 +32,18 @@ export async function createBook(data: BookForm): Promise<ActionResult<Book>> {
         }
         // TODO (optional): create a book, if this is the first book created, crate a default series
         // if find default series, create a book in that series
-
+        let seriesId = data.seriesId || null
+        if (seriesId) {
+            const series = await prisma.series.findFirst({
+                where: {
+                    id: seriesId,
+                    authorId: session.user.id,
+                },
+            })
+            if (!series || series.authorId !== session.user.id) {
+                seriesId = null
+            }
+        }
         // TODO: create a book in the database, if such name and author not unique, throw error
         const book = await prisma.book.create({
             data: {
@@ -40,7 +51,7 @@ export async function createBook(data: BookForm): Promise<ActionResult<Book>> {
                 description: data.description || "",
                 isPublic: data.isPublic,
                 authorId: session.user.id,
-                seriesId: data.seriesId || null,
+                seriesId: seriesId,
             },
         })
         return {
@@ -82,6 +93,18 @@ export async function updateBook(data: BookForm): Promise<ActionResult<Book>> {
             return {
                 message: "Unauthorized action", 
                 status: 403,
+            }
+        }
+        let seriesId = data.seriesId || null
+        if (seriesId) {
+            const series = await prisma.series.findFirst({
+                where: {
+                    id: seriesId,
+                    authorId: session.user.id,
+                },
+            })
+            if (!series || series.authorId !== session.user.id) {
+                seriesId = null
             }
         }
         const res = await prisma.book.update({

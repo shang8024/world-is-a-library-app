@@ -5,6 +5,7 @@ import {Book, Series, User} from "@prisma/client"
 import { useState, useEffect } from "react";
 import Loading from "@/components/Loading";
 import { useSearchParams } from "next/navigation"
+import { fetchSerieswithBooks } from "@/lib/book/series-actions";
 interface DashboardContextProps {
     serieslist: (Series & { books: Book[] })[]
     user: User
@@ -41,15 +42,6 @@ export function DashboardContextProvider({
   
   useEffect(() => {
     if (user?.id) {
-      fetch(`/api/author/${user.username}/series`)
-        .then((res) => {
-          if (!res.ok) throw new Error("Failed to load series");
-          return res.json();
-        })
-        .then((data) => setSeries(data))
-        .catch((err) => setError(err.message))
-        .finally(() => setIsLoading(false));
-      }
       fetch(`/api/author/${user.username}/stats`)
         .then((res) => {
           if (!res.ok) throw new Error("Failed to load stats");
@@ -58,6 +50,18 @@ export function DashboardContextProvider({
         .then((data) => setStats(data))
         .catch((err) => setError(err.message))
         .finally(() => setIsLoading(false));
+      fetchSerieswithBooks()
+        .then((res) => {
+          if (res.status !== 200 || !res.data) throw new Error(res.message);
+          return res.data;
+        })
+        .then((data) => {
+          console.log(data);setSeries(data)})
+        .catch((err) => setError(err || "Failed to load series"))
+        .finally(() => setIsLoading(false));
+      
+
+    }
     }, [user?.id, user?.username, shouldRefresh]);
   return (
     <DashboardContext.Provider value={{ serieslist, user, setSeries, stats }}>
