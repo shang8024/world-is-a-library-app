@@ -1,7 +1,7 @@
 "use client"
 import { createContext, useContext, useEffect, useState } from "react";
 import { Book } from "@prisma/client";
-import { fetchChaptersIndex } from "@/lib/book/chapters-action";
+import { fetchChaptersIndex } from "@/lib/book/chapters-actions";
 import Loading from "@/components/Loading";
 
 export type ChapterIndex = {
@@ -20,6 +20,8 @@ export interface BookContextType {
     setBook: (book: Book) => void;
     isLoading: boolean;
     setLoading: (isLoading: boolean) => void;
+    curChapter: string | null;
+    setCurChapter: (chapterId: string) => void;
 }
 
 export const EditorContext = createContext<BookContextType | null>(null);
@@ -36,6 +38,7 @@ export const EditorContextProvider = ({ children, bookId}: { children: React.Rea
     const [chapters, setChapters] = useState<ChapterIndex[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [isFetching, setIsFetching] = useState(true);
+    const [curChapter, setCurChapter] = useState<string | null>(null);
     useEffect(() => {
         setLoading(true)
         fetchChaptersIndex(bookId)
@@ -69,7 +72,7 @@ export const EditorContextProvider = ({ children, bookId}: { children: React.Rea
     }
 
     return (
-        <EditorContext.Provider value={{ book, chapters, setChapters, setBook, isLoading, setLoading }}>
+        <EditorContext.Provider value={{ book, chapters, setChapters, setBook, isLoading, setLoading, curChapter, setCurChapter }}>
             {children}
         </EditorContext.Provider>
     );
