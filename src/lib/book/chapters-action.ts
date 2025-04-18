@@ -1,8 +1,6 @@
 "use server"
 import prisma from "@/db"
-import {auth} from "@/lib/auth/auth"
-import { Prisma } from '@prisma/client'
-import { headers } from "next/headers"
+import { getValidatedSession } from "@/lib/auth/auth-actions"
 import { Book, Chapter } from "@prisma/client"
 
 type ChaptersForm = {
@@ -30,15 +28,7 @@ export type ActionResult<T = void> = {
 
 export async function fetchChaptersIndex(bookId: string): Promise<ActionResult<Book & { chapters: ChapterIndex[] }>> {
     try {
-        const session = await auth.api.getSession({
-            headers: await headers()
-        })
-        if (!session) {
-            return {
-                status: 401,
-                message: "Session expired, Please login again",
-            }
-        }
+        const session = await getValidatedSession()
         const chaptersIndex = await prisma.book.findUnique({
             where: { id: bookId },
             include: {
@@ -72,6 +62,9 @@ export async function fetchChaptersIndex(bookId: string): Promise<ActionResult<B
             data: chaptersIndex,
         }
     } catch (err) {
+        if (err instanceof Error && err.message === "UNAUTHORIZED") {
+            return { status: 401, message: "Session expired, Please login again" };
+        }
         return {
             status: 500,
             message: "Error fetching chapters",
@@ -81,17 +74,49 @@ export async function fetchChaptersIndex(bookId: string): Promise<ActionResult<B
 
 export async function fetchChapter(chapterId: string): Promise<ActionResult<Chapter>> {
     try {
-        const session = await auth.api.getSession({
-            headers: await headers()
+        const session = await getValidatedSession()
+        const chapter = await prisma.chapter.findUnique({
+            where: { id: chapterId },
         })
-        if (!session) {
+        if (!chapter) {
             return {
-                status: 401,
-                message: "Session expired, Please login again",
+                status: 404,
+                message: "Book not found",
             }
         }
-        const chaptersIndex = await prisma.chapter.findUnique({
-            where: { id: chapterId },
+        if (chapter.authorId !== session.user.id) {
+            return {
+                status: 403,
+                message: "Unauthorized access",
+            }
+        }
+        return {
+            status: 200,
+            data: chapter,
+        }
+    } catch (err) {
+        if (err instanceof Error && err.message === "UNAUTHORIZED") {
+            return { status: 401, message: "Session expired, Please login again" };
+        }
+        return {
+            status: 500,
+            message: "Error fetching chapter",
+        }
+    }
+}
+
+export async function createChapter(bookId: string): Promise<ActionResult<Chapter>> {
+    try {
+        const session = await getValidatedSession()
+        const chapter = await prisma.chapter.create({
+            data: {
+                title: "New Chapter",
+                isPublic: false,
+                content: "",
+                wordCount: 0,
+                bookId: bookId,
+                authorId: session.user.id,
+            },
         })
         if (!chaptersIndex) {
             return {
@@ -110,6 +135,9 @@ export async function fetchChapter(chapterId: string): Promise<ActionResult<Chap
             data: chaptersIndex,
         }
     } catch (err) {
+        if (err instanceof Error && err.message === "UNAUTHORIZED") {
+            return { status: 401, message: "Session expired, Please login again" };
+        }
         return {
             status: 500,
             message: "Error fetching chapters",

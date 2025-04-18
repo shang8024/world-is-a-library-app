@@ -1,6 +1,8 @@
 "use server";
 
 import { authClient } from "@/lib/auth/auth-client";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth/auth";
 
 export async function signUpWithEmail(formData: FormData) {
   const email = formData.get("email") as string;
@@ -26,4 +28,12 @@ export async function signUpWithEmail(formData: FormData) {
       message: `Error: ${(error as Error).message}`,
     };
   }
+}
+
+export async function getValidatedSession() {
+  const session = await auth.api.getSession({
+      headers: await headers(),
+  });
+  if (!session) throw new Error("UNAUTHORIZED");
+  return session;
 }
