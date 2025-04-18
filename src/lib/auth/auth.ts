@@ -11,6 +11,7 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  trustedOrigins: ["http://localhost:3000", "https://www.world-is-a-library.com", "https://world-is-a-library-app.vercel.app"], // Add your trusted origins here
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
@@ -46,6 +47,18 @@ export const auth = betterAuth({
     cookieCache: {
         enabled: true,
         maxAge: 60 * 5, // 5 minutes
+    },
+  },
+  
+  advanced: {
+    useSecureCookies: process.env.NODE_ENV === "production",
+    crossSubDomainCookies: {
+      enabled: true,
+      domain: process.env.NEXTAUTH_COOKIE_DOMAIN || undefined,
+    },
+    defaultCookieAttributes: {
+      secure: true,
+      sameSite: "none",
     },
   },
   plugins: [
