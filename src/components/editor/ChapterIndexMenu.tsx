@@ -69,7 +69,7 @@ const ChapterIndexItem = ({chapter, chapterActions}: ChapterIndexItemProps) => {
 }
 
 export function ChapterIndexMenu() {
-  const {book, chapters, setChapters, isLoading, setLoading} = useEditorContext()
+  const {book, chapters, setChapters, isLoading, setLoading, curChapter} = useEditorContext()
   const [searchFilter, setSearchFilter] = React.useState<string>("")
   const [filteredChapters, setFilteredChapters] = React.useState(chapters)
   const router = useRouter()
@@ -131,6 +131,9 @@ export function ChapterIndexMenu() {
         },
         finally: () => {
           setLoading(false);
+          if (curChapter === id) {
+            router.push(`/dashboard/book-editor/${book.id}/chapters`)
+          }
         }
       }
     );
