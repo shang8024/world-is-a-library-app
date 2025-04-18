@@ -11,11 +11,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { signIn } from '@/lib/auth/auth-client'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 const SignIn = () => {
-    const router = useRouter()
     const { error, success, loading, setSuccess, setError, setLoading, resetState } = useAuthState();
 
     const form = useForm<z.infer<typeof LoginSchema>>({

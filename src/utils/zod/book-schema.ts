@@ -7,8 +7,7 @@ export const BookSchema = z.object({
     .max(255, {message: "Title is too long"}), // checks if the string is not too long
     // check if title contains special characters other than !?[],.:;-_(){}'" and spaces
     isPublic: z
-    .boolean() // boolean type
-    .default(false), // default value is false
+    .boolean(), // boolean type
     description: z
     .string() // string type
     .max(1000, {message: "Description is too long"}), // checks if the string is not too long

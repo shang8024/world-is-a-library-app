@@ -1,9 +1,8 @@
 "use server"
 import prisma from "@/db"
-import {auth} from "@/lib/auth/auth"
 import { Prisma } from '@prisma/client'
-import { headers } from "next/headers"
 import { Book } from "@prisma/client"
+import { getValidatedSession } from "@/lib/auth/auth-actions"
 
 type BookForm = {
     id?: string,
@@ -19,20 +18,38 @@ export type ActionResult<T = void> = {
     data?: T
   }
 
+const validateSeriesId = async (seriesId: string | null, authorId: string) => {
+    if (!seriesId) return null
+    const series = await prisma.series.findFirst({
+        where: {
+            id: seriesId,
+            authorId: authorId,
+        },
+    })
+    if (!series || series.authorId !== authorId) {
+        return null
+    }
+    return seriesId
+}
+
+export const validateBookId = async (bookId: string | undefined, authorId: string) => {
+    if (!bookId) throw new Error("ACCESS_DENIED")
+    const book = await prisma.book.findFirst({
+        where: {
+            id: bookId,
+            authorId: authorId,
+        },
+    })
+    if (!book || book.authorId !== authorId) {
+        throw new Error("ACCESS_DENIED")
+    }
+    return book
+}
+
 export async function createBook(data: BookForm): Promise<ActionResult<Book>> {
     try {
-        const session = await auth.api.getSession({
-            headers: await headers()
-        })
-        if (!session) {
-            return {
-                status: 401,
-                message: "Session expired, Please login again",
-            }
-        }
-        // TODO (optional): create a book, if this is the first book created, crate a default series
-        // if find default series, create a book in that series
-
+        const session = await getValidatedSession()
+        const seriesId = await validateSeriesId(data.seriesId, session.user.id)
         // TODO: create a book in the database, if such name and author not unique, throw error
         const book = await prisma.book.create({
             data: {
@@ -40,7 +57,7 @@ export async function createBook(data: BookForm): Promise<ActionResult<Book>> {
                 description: data.description || "",
                 isPublic: data.isPublic,
                 authorId: session.user.id,
-                seriesId: data.seriesId || null,
+                seriesId: seriesId,
             },
         })
         return {
@@ -48,6 +65,9 @@ export async function createBook(data: BookForm): Promise<ActionResult<Book>> {
             data: book,
         }
     } catch (err) {
+        if (err instanceof Error && err.message === "UNAUTHORIZED") {
+            return { status: 401, message: "Session expired, Please login again" };
+        }
         if (
             err instanceof Prisma.PrismaClientKnownRequestError &&
             err.code === 'P2002') {
@@ -62,28 +82,9 @@ export async function createBook(data: BookForm): Promise<ActionResult<Book>> {
 
 export async function updateBook(data: BookForm): Promise<ActionResult<Book>> {
     try {
-        const session = await auth.api.getSession({
-            headers: await headers()
-        })
-        if (!session) {
-            return {
-                status: 401,
-                message: "Session expired, Please login again",
-            }
-        }
-
-        const book = await prisma.book.findFirst({
-            where: {
-                id: data.id,
-                authorId: session.user.id,
-            },
-        })
-        if (!book || book.authorId !== session.user.id) {
-            return {
-                message: "Unauthorized action", 
-                status: 403,
-            }
-        }
+        const session = await getValidatedSession();
+        await validateBookId(data.id, session.user.id)
+        const seriesId = await validateSeriesId(data.seriesId, session.user.id)
         const res = await prisma.book.update({
             where: {
                 id: data.id,
@@ -92,7 +93,7 @@ export async function updateBook(data: BookForm): Promise<ActionResult<Book>> {
                 title: data.title,
                 description: data.description || "",
                 isPublic: data.isPublic,
-                seriesId: data.seriesId || null,
+                seriesId: seriesId,
             },
         })
         return {
@@ -100,6 +101,12 @@ export async function updateBook(data: BookForm): Promise<ActionResult<Book>> {
             data: res,
         }
     } catch (err) {
+        if (err instanceof Error && err.message === "UNAUTHORIZED") {
+            return { status: 401, message: "Session expired, Please login again" };
+        }
+        if (err instanceof Error && err.message === "ACCESS_DENIED") {
+            return { status: 403, message: "Unauthorized action" };
+        }
         if (
             err instanceof Prisma.PrismaClientKnownRequestError &&
             err.code === 'P2002') {
@@ -114,27 +121,8 @@ export async function updateBook(data: BookForm): Promise<ActionResult<Book>> {
 
 export async function deleteBook(bid: string): Promise<ActionResult> {
     try {
-        const session = await auth.api.getSession({
-            headers: await headers()
-        });
-        if (!session) {
-            return {
-                status: 401,
-                message: "Session expired, Please login again",
-            };
-        }
-        const book = await prisma.book.findFirst({
-            where: {
-                id: bid,
-                authorId: session.user.id,
-            },
-        })
-        if (!book) {
-            return {
-                status: 403,
-                message: "Unauthorized action",
-            }
-        }
+        const session = await getValidatedSession()
+        await validateBookId(bid, session.user.id)
         await prisma.book.delete({
             where: {
                 id: bid,
@@ -144,6 +132,12 @@ export async function deleteBook(bid: string): Promise<ActionResult> {
             status: 200,
         }
     } catch (err) {
+        if (err instanceof Error && err.message === "UNAUTHORIZED") {
+            return { status: 401, message: "Session expired, Please login again" };
+        }
+        if (err instanceof Error && err.message === "ACCESS_DENIED") {
+            return { status: 403, message: "Unauthorized action" };
+        }
         if (
             err instanceof Prisma.PrismaClientKnownRequestError &&
             err.code === 'P2025') {

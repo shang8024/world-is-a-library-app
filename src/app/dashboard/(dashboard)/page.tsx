@@ -13,7 +13,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createSeries } from "@/lib/book/series-actions";
-import { useRouter } from "next/navigation";
 import { Book, Series } from "@prisma/client";
 
 interface StatisticsProps {
@@ -61,7 +60,7 @@ const Statistics = ({ stats, user }: StatisticsProps) => {
 }
 
 export default function DashboardPage() {
-  const {user, } = useDashboardContext()
+  const {user, isLoading, setLoading } = useDashboardContext()
   const currentHour = new Date().getHours();
   const isEvening = currentHour >= 18 && currentHour < 24;
   const greeting = isEvening ? "Good Evening" : "Good Morning";
@@ -86,7 +85,6 @@ export default function DashboardPage() {
         books: books,
       }
     })
-
   }
 
   useEffect(() => {
@@ -105,6 +103,7 @@ export default function DashboardPage() {
       toast.error("Series with this name already exists");
       return;
     }
+    setLoading(true);
     startTransition(async () => {
       toast.promise(
         (async () => {
@@ -124,8 +123,13 @@ export default function DashboardPage() {
             return `Series created successfully`;
           },
           error: (error) => {
+
             return error.message || "Something went wrong";
           },
+          finally: () => {
+            setLoading(false);
+            setNewSeries("");
+          }
         }
       );
     });
@@ -143,7 +147,7 @@ export default function DashboardPage() {
           placeholder="Search books and series..."
           value={searchFilter}
           onChange={(e) => setSearchFilter(e.target.value)}
-          disabled={isPending}
+          disabled={isPending || isLoading}
           className="w-full flex-1 p-2"
         />
         </div>
@@ -154,18 +158,18 @@ export default function DashboardPage() {
             placeholder="Create series..."
             value={newSeries}
             onChange={(e) => setNewSeries(e.target.value)}
-            disabled={isPending}
+            disabled={isPending || isLoading}
             className="w-full flex-1 p-2 md:min-w-[50%] md:max-w-[60%] lg:max-w-[90%] rounded-r-none"
           />
           <Button variant="outline" 
             className="md:text-lg rounded-l-none cursor-pointer" 
             onClick={handleCreateSeries}
-            disabled={isPending}
+            disabled={isPending || isLoading}
           >
             Create Series
           </Button>
           </div>
-          <Button variant="outline" className="md:text-lg">
+          <Button variant="outline" className="md:text-lg" disabled={isPending || isLoading}>
             <Link href="/dashboard/create-book">Create Book</Link>
           </Button>
         </div>

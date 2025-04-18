@@ -82,7 +82,7 @@ model Book {
   authorId String
   Author   User   @relation("AuthorBooks", fields: [authorId], references: [id], onDelete: Cascade)
   seriesId String?
-  Series   Series? @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  series   Series? @relation(fields: [seriesId], references: [id], onDelete: SetNull)
   chapters Chapter[]  @relation("BookChapters")
   description String
   coverImage String?

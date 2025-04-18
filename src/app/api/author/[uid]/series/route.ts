@@ -17,7 +17,10 @@ export async function GET(req: NextRequest, { params }: { params: { uid: string 
         where: { authorId: user.id },
         orderBy: { createdAt: 'desc' },
         include: {
-          books: { orderBy: { createdAt: 'asc' } },
+          books: {
+            where: { isPublic: true }, 
+            orderBy: { createdAt: 'asc' } 
+          },
         },
     })
 
@@ -25,6 +28,7 @@ export async function GET(req: NextRequest, { params }: { params: { uid: string 
     where: {
       authorId: user.id,
       seriesId: null,
+      isPublic: true,
     },
   })
   const defaultSeires = {

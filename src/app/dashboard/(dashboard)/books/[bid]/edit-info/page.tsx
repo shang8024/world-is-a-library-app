@@ -24,7 +24,7 @@ const EditBookInfoPage = () => {
     <div className="flex min-h-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
         <Suspense fallback={<div>Loading...</div>}>
-            <EditBookInfoForm book={book} />
+            <EditBookInfoForm book={{ ...book, seriesId: book.seriesId ?? undefined }} />
         </Suspense>
       </div>
     </div>
