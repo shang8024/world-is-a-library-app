@@ -1,6 +1,6 @@
 
 import Loading from '@/components/Loading'
-import React, { Suspense } from 'react'
+import React from 'react'
 
 const ChaptersEditorPage = () => {
   console.log('ChaptersEditorPage')

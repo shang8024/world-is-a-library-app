@@ -2,7 +2,6 @@ import * as React from "react"
 import { Book } from "@prisma/client"
 import {toast} from 'sonner'
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
 import { useDashboardContext } from "@/hooks/useDashboardContext"
 import { BookCard } from "@/components/book/BookCard"
 import { useRouter } from "next/navigation"
@@ -146,7 +145,7 @@ function BookListDashboard({ books }: {books: Book[] }) {
               isLoading={isLoading}
             />
         </div>
-        <div className="block hidden sm:flex flex-wrap gap-8 justify-start w-full">
+        <div className="hidden sm:flex flex-wrap gap-8 justify-start w-full">
           {books.map((book) => (
             <BookCardListItem 
                 book={book} 

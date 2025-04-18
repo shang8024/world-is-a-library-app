@@ -6,7 +6,7 @@ import "./globals.css"
 import { cn } from "@/lib/utils"
 import { ActiveThemeProvider } from "@/components/theme/ActiveTheme"
 import { Footer } from "@/components/Footer";
-import { Suspense, use } from "react"
+import { Suspense } from "react"
 import { Toaster } from "@/components/ui/sonner"
 import { NavHeader } from "@/components/NavHeader"
 import { ModeSwitcher } from "@/components/theme/ModeSwitcher"
@@ -17,6 +17,7 @@ import MobileBottomNavbar from "@/components/navigation/MobileBottomNavbar"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import AvatarDropdownMenu from "@/components/navigation/AvatarDropdownMenu"
+import { User } from "@prisma/client"
 
 const META_THEME_COLORS = {
   light: "#ffffff",
@@ -43,7 +44,7 @@ export default async function RootLayout({
   const session= await auth.api.getSession({
     headers: await headers()
   })
-  const user = session?.user
+  const user = session?.user as User | null
 
   return (
     <html lang="en" suppressHydrationWarning>
