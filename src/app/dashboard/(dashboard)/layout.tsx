@@ -32,7 +32,7 @@ export default function DashboardLayout({
           Logoout
         </div>
       </aside>
-      <div className="flex-1">
+      <div className="flex-1 ">
         {children}
       </div>
     </div>

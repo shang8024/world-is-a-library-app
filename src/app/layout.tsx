@@ -6,7 +6,7 @@ import "./globals.css"
 import { cn } from "@/lib/utils"
 import { ActiveThemeProvider } from "@/components/theme/ActiveTheme"
 import { Footer } from "@/components/Footer";
-import { Suspense } from "react"
+import { Suspense, use } from "react"
 import { Toaster } from "@/components/ui/sonner"
 import { NavHeader } from "@/components/NavHeader"
 import { ModeSwitcher } from "@/components/theme/ModeSwitcher"
@@ -89,12 +89,12 @@ export default async function RootLayout({
                     >
                       <Link href="/login">SignIn</Link>
                     </Button>
-                    : <AvatarDropdownMenu user={user} />}
+                    : <AvatarDropdownMenu user={user}/>}
                     <ModeSwitcher />
                   </div>
                 </div>
               </header>
-              <div className="flex-1 min-h-svh">
+              <div className="flex-1 min-h-[calc(100vh-56px)]">
                 {children}
                 {user && <MobileBottomNavbar/>}
               </div>
