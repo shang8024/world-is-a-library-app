@@ -19,13 +19,13 @@ export function BookCard({book, onClick}: BookCardProps) {
             Draft
           </div>
         )}
-        <div className="cursor-pointer w-full h-full aspect-w-3 aspect-h-4 relative">
+        <div className="cursor-pointer w-full h-full aspect-w-4 aspect-h-5 relative">
           <Image
             src={book?.coverImage || placeholderImage}
             alt={book.title}
             fill
             className="object-cover rounded-t-lg"
-            style={{ aspectRatio: "300/400", objectFit: "cover" }}
+            style={{ aspectRatio: "400/500", objectFit: "cover" }}
           />
         </div>
       </Card>

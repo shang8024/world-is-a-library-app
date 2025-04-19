@@ -125,7 +125,7 @@ export default function DashboardPage() {
           </Button>
         </div>
         <div className="w-full p-2">
-          <SeriesListDashboard serieslist={filteredSeries} />
+          <SeriesListDashboard serieslist={filteredSeries} mode="card"/>
         </div>
       </section>
     </div>

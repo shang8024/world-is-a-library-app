@@ -24,7 +24,7 @@ interface BookListProps {
     editable?: boolean;
     onDelete?: (bookId: string) => void;
     isLoading?: boolean;
-  }
+}
 
 function BookCardListItem({ book, editable, isLoading, onDelete}:  {book: Book } & BookListProps) {
   const router = useRouter()
@@ -53,6 +53,7 @@ function BookCardListItem({ book, editable, isLoading, onDelete}:  {book: Book }
         <p className="text-left text-xl font-semibold break-words flex-1 p-2 break-all text-primary dark:text-primary-background">
           {book.title}
         </p>
+        {editable && (
         <div className="flex flex-col gap-1 w-[76px] sm:w-[60px]">
           <Button
             variant="ghost"
@@ -71,6 +72,7 @@ function BookCardListItem({ book, editable, isLoading, onDelete}:  {book: Book }
             DELETE
           </Button>
         </div>
+        )}
       </div>
     </div>
   )
@@ -83,7 +85,7 @@ function CarouselDisplay({books, editable, onDelete, isLoading}: {books: Book[] 
       <CarouselContent className="ml-4 w-[320px] ">
         {books.map((book, index) => (
           <CarouselItem key={index} className="min-w-0 shrink-0 grow-0 basis-full pl-4">
-            <BookCardListItem 
+            <BookCardFlexItem 
               book={book} 
               editable={editable} 
               isLoading={isLoading}
@@ -99,7 +101,7 @@ function CarouselDisplay({books, editable, onDelete, isLoading}: {books: Book[] 
   )
 }
  
-function BookListDashboard({ books }: {books: Book[] }) {
+function BookListDashboard({ books, mode }: {books: Book[], mode: 'card' | 'list'}) {
   const {serieslist, setSeries, isLoading, setLoading} = useDashboardContext()
 
   const handleDelete = async (bookId: string) => {
@@ -147,7 +149,7 @@ function BookListDashboard({ books }: {books: Book[] }) {
         </div>
         <div className="hidden sm:flex flex-wrap gap-8 justify-start w-full">
           {books.map((book) => (
-            <BookCardListItem 
+            <BookCardFlexItem 
                 book={book} 
                 editable={true}
                 onDelete={handleDelete}
@@ -159,16 +161,26 @@ function BookListDashboard({ books }: {books: Book[] }) {
     </div>
   )
 }
-const BookListPublic = ({ books}: {books: Book[] }) => {
-  console.log("books", books)
+
+
+const BookListPublic = ({books, mode}: {books: Book[], mode: 'card' | 'list' }) => {
   return (
-    <div className="flex flex-wrap gap-auto w-full p-2 gap-3">
-      {books.map((book) => (
-        <div key={book.id} className="w-[150px] h-[200px]">
-        <BookCard book={book}/>
-        </div>
-      ))}
+    <div className="justify-center items-center flex flex-col w-full h-full">
+      <div 
+        className={`w-full ${
+          mode === 'card'
+            ? 'flex flex-wrap gap-8 justify-center sm:justify-start'
+            : 'flex flex-col gap-4'
+        }`}
+      >
+        {books.map((book) => (
+          <BookCardFlexItem 
+            book={book}
+            key ={book.id}
+          />
+        ))}
     </div>
+  </div>
   )
 }
 

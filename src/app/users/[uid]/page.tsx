@@ -11,6 +11,7 @@ export default function UserDashboardPage() {
   const { user, stats, serieslist } = useUserProfileContext()
   const [searchFilter, setSearchFilter] = useState<string>("")
   const [filteredSeries, setFilteredSeries] = useState(serieslist);
+  const {viewMode, setViewMode} = useState<'card' | 'list'>('card');
 
   const filterList = (serieslist: (Series & { books: Book[] })[], filter: string) => {
     const filterlowercase = filter.toLowerCase()
@@ -46,10 +47,14 @@ export default function UserDashboardPage() {
             className="w-full flex-1 p-2"
           />
         </div>
+        <div>
+          {/* TODO: add toggle group for view mode */}
+          {/* TODO: add sort select box [by ...][asc/desc]*/} 
+        </div>
         <div className="flex justify-start gap-1 flex-wrap w-full md:flex-nowrap">
         </div>
         <div className="w-full p-2">
-          <SeriesListPublic serieslist={filteredSeries} />
+          <SeriesListPublic serieslist={filteredSeries} mode={viewMode} />
         </div>
       </section>
     </div>
