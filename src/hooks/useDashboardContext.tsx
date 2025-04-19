@@ -46,7 +46,7 @@ export function DashboardContextProvider({
   
   useEffect(() => {
     if (user?.id) {
-      fetch(`/api/author/${user.username}/stats`)
+      fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/author/${user.username}/stats`)
         .then((res) => {
           if (!res.ok) throw new Error("Failed to load stats");
           return res.json();
@@ -54,7 +54,7 @@ export function DashboardContextProvider({
         .then((data) => setStats(data))
         .catch((err) => setError(err.message))
         .finally(() => setFetching(false));
-      fetchSerieswithBooks()
+      fetchSerieswithBooks({isPublicOnly: false})
         .then((res) => {
           if (res.status !== 200 || !res.data) throw new Error(res.message);
           return res.data;

@@ -2,7 +2,7 @@
 export default function ErrorPage({
   message,
 }: {
-  message: string | undefined | null
+  message?: string | null
 }) {
 
   return (

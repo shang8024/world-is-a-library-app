@@ -113,9 +113,15 @@ const SeriesListItem = ({ series, editable, isLoading, isEditing, seriesActions 
 const SeriesListPublic = ({ serieslist }: SeriesListProps) => {
   return (
     <div className="grid w-full  gap-4">
-      {serieslist.map((series, index) => (
+    { !serieslist || serieslist.length === 0 ? (
+      <div className="flex items-center justify-center w-full h-full p-4 text-sm text-muted-foreground">
+          No results found
+      </div>
+    ) : (
+      serieslist.map((series, index) => (
         <SeriesListItem series={series} key={index}/>
-      ))}
+      ))
+    )}
     </div>
   )
 }
