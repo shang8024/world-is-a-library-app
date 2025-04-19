@@ -1,4 +1,5 @@
 import { fetchUser, FetchError } from "@/lib/user/fetchUserData";
+import ErrorPage from "@/components/Error"
 
 export default async function UserDashboard({ params }: { params: Promise<{ uid: string }> }) {
   const { uid } = await params;
@@ -26,15 +27,12 @@ export default async function UserDashboard({ params }: { params: Promise<{ uid:
     ) {
       const fetchError = error as FetchError;
       return (
-        <p className="text-red-600">
-          Error: {fetchError.message}
-          {fetchError.status && ` (Status: ${fetchError.status})`}
-        </p>
+        <ErrorPage message={fetchError.message} />
       );
     }
     // Fallback for unknown errors
     const unknownError =
       error instanceof Error ? error.message : "Unknown error";
-    return <p className="text-red-600">Error: {unknownError}</p>;
+    return <ErrorPage message={unknownError} />;
   }
 }

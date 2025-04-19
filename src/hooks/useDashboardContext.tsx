@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import Loading from "@/components/Loading";
 import { useSearchParams } from "next/navigation"
 import { fetchSerieswithBooks } from "@/lib/book/series-actions";
+import ErrorPage from "@/components/Error";
 interface DashboardContextProps {
     serieslist: (Series & { books: Book[] })[]
     user: User
@@ -66,11 +67,8 @@ export function DashboardContextProvider({
   return (
     <DashboardContext.Provider value={{ serieslist, user, setSeries, stats, isLoading, setLoading }}>
       {isFetching ? <Loading/>
-      : error ? (
-        <div className="h-fit">
-          <p className="text-2xl text-red-500">{error}</p>
-        </div>
-      ) : (
+      : error ? <ErrorPage message={error} />
+      : (
         children
       )}
     </DashboardContext.Provider>

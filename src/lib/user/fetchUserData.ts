@@ -7,7 +7,7 @@ interface UserData {
     createdAt: Date;
   }
   
-  export interface FetchError {
+  export interface FetchError{
     message: string;
     status?: number;
     isFetchError: true; // Unique identifier
