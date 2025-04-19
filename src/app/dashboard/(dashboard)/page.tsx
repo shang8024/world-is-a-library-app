@@ -29,9 +29,9 @@ interface StatisticsProps {
 
 const Statistics = ({ stats, user }: StatisticsProps) => {
   return (
-    <div className="flex flex-col sm:flex-row gap-4 items-center justify-between w-full p-4 px-6 bg-gray-50 dark:bg-gray-800 rounded-md">
-      <div className="flex justify-start w-full">
-        <div className="flex items-center space-x-4">
+    <div className="flex flex-col sm:flex-row gap-4 items-center justify-between w-full p-4 px-6 bg-gray-50 dark:bg-gray-800 rounded-md h-fit">
+      <div className="flex w-full flex-col justify-between sm:h-48">
+        <div className="flex items-center space-x-4 flex-1">
           <Avatar className="h-16 w-16 relative flex size-24 shrink-0 overflow-hidden rounded-full">
             <AvatarImage src={user.image || ""} alt="User profile" />
             <AvatarFallback className="w-full bg-muted flex size-full items-center justify-center rounded-full text-3xl">{user.name.charAt(0)}</AvatarFallback>
@@ -43,7 +43,13 @@ const Statistics = ({ stats, user }: StatisticsProps) => {
             <Link href={`/users/${user.username}`} className="text-sm text-gray-500 hover:underline">{user.username}</Link></p>
             <p className="text-sm text-gray-500">Joined: {new Date(user.createdAt).toLocaleDateString()}</p>
           </div>
-        </div>  
+        </div> 
+        <Link
+          href={`/users/${user.username}`}
+          className="text-sm text-indigo-300 hover:underline hover:text-indigo-500"
+        >
+          &gt; To your profile view
+        </Link>
       </div>
       <div className="flex flex-col justify-center w-full ">
         <h3 className="text-xl font-bold text-center">Statistics</h3>

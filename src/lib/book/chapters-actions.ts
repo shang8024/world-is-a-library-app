@@ -161,7 +161,7 @@ export async function updateChapter(data: ChaptersForm): Promise<ActionResult<Ch
                 title: data.title,
                 isPublic: data.isPublic,
                 content: data.content,
-                wordCount: data.wordCount,
+                wordCount: data.content.length,
             },
         })
         return {
