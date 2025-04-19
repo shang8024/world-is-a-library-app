@@ -21,6 +21,11 @@ export function NavHeader() {
             <Link href="/">Home</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild data-active={pathname === "/"}>
+            <Link href="/books">Library</Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
   )

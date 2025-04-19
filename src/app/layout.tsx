@@ -16,8 +16,9 @@ import { headers } from "next/headers"
 import MobileBottomNavbar from "@/components/navigation/MobileBottomNavbar"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import AvatarDropdownMenu from "@/components/navigation/AvatarDropdownMenu"
+import AvatarButton from "@/components/navigation/AvatarButton"
 import { User } from "@prisma/client"
+import ScrollToTopButton from "@/components/navigation/ScrollToTopButton"
 
 const META_THEME_COLORS = {
   light: "#ffffff",
@@ -78,29 +79,30 @@ export default async function RootLayout({
         >
           <ActiveThemeProvider initialTheme={activeThemeValue}>
             <Suspense fallback={<Loading />}>
-            <main className="min-h-svh flex flex-col">
-              <header className="bg-background sticky inset-x-0 top-0 isolate z-10 flex shrink-0 items-center gap-2 border-b">
-                <div className="flex h-14 w-full items-center gap-2 px-4">
-                  <NavHeader />
-                  
-                  <div className="ml-auto flex items-center gap-2">
-                    {!user ? <Button
-                      variant="outline"
-                      className="group/toggle flex align-items-center p-2"          
-                    >
-                      <Link href="/login">SignIn</Link>
-                    </Button>
-                    : <AvatarDropdownMenu user={user}/>}
-                    <ModeSwitcher />
+              <main className="min-h-svh flex flex-col">
+                <header className="bg-background sticky inset-x-0 top-0  z-10 flex shrink-0 items-center gap-2 border-b">
+                  <div className="flex h-14 w-full items-center gap-2 px-4">
+                    <NavHeader />
+
+                    <div className="ml-auto flex items-center gap-2">
+                      {!user ? <Button
+                        variant="outline"
+                        className="group/toggle flex align-items-center p-2"          
+                      >
+                        <Link href="/login">SignIn</Link>
+                      </Button>
+                      : <AvatarButton user={user}/>}
+                      <ModeSwitcher />
+                    </div>
                   </div>
+                </header>
+                <div className="flex-1 min-h-[calc(100vh-56px)]">
+                  {children}
+                  {user && <MobileBottomNavbar/>}
                 </div>
-              </header>
-              <div className="flex-1 min-h-[calc(100vh-56px)]">
-                {children}
-                {user && <MobileBottomNavbar/>}
-              </div>
-            </main>
-            <Toaster/>
+                <ScrollToTopButton/>
+              </main>
+              <Toaster/>
             </Suspense>
             {/* Footer */}
             <Footer />
