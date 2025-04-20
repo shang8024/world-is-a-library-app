@@ -11,7 +11,7 @@ export default function UserDashboardPage() {
   const { user, stats, serieslist } = useUserProfileContext()
   const [searchFilter, setSearchFilter] = useState<string>("")
   const [filteredSeries, setFilteredSeries] = useState(serieslist);
-  const {viewMode, setViewMode} = useState<'card' | 'list'>('card');
+  const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
 
   const filterList = (serieslist: (Series & { books: Book[] })[], filter: string) => {
     const filterlowercase = filter.toLowerCase()

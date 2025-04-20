@@ -147,7 +147,7 @@ function BookListDashboard({ books, mode }: {books: Book[], mode: 'card' | 'list
               isLoading={isLoading}
             />
         </div>
-        <div className="hidden sm:flex flex-wrap gap-8 justify-start w-full">
+        <div className="hidden sm:flex flex-wrap gap-4 justify-start w-full">
           {books.map((book) => (
             <BookCardFlexItem 
                 book={book} 
@@ -169,7 +169,7 @@ const BookListPublic = ({books, mode}: {books: Book[], mode: 'card' | 'list' }) 
       <div 
         className={`w-full ${
           mode === 'card'
-            ? 'flex flex-wrap gap-8 justify-center sm:justify-start'
+            ? 'flex flex-wrap justify-center sm:justify-start gap-4'
             : 'flex flex-col gap-4'
         }`}
       >
