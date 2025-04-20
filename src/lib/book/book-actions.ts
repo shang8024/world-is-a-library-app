@@ -10,13 +10,150 @@ type BookForm = {
     isPublic: boolean,
     description: string,
     seriesId: string | null,
+    image?: string,
+}
+
+export type BookInfo = Book & {
+    author?: {
+        username: string | null
+        name: string | null
+    }
+    _count?: {
+        chapters: number
+    },
+    series?: {
+        id: string
+        name: string
+    }
 }
 
 export type ActionResult<T = void> = {
     status: number
     message?: string
     data?: T
-  }
+}
+
+export interface bookSearchParams {
+    query: string;
+    sortBy: 'createdAt' | 'updatedAt' | 'title' | 'wordCount';
+    sortDest: 'asc' | 'desc';
+    currentPage: number;
+}
+
+export async function fetchBooksPages(query:string): Promise<ActionResult<number>> {
+    try {
+        const pageSize = 10
+        const books = await prisma.book.count({
+            where: {
+              isPublic: true,
+              OR: [
+                {
+                  title: {
+                    contains: query,
+                    mode: 'insensitive',
+                  },
+                },
+                {
+                  author: {
+                    name: {
+                      contains: query,
+                      mode: 'insensitive',
+                    },
+                  },
+                },
+                {
+                  series: {
+                    name: {
+                      contains: query,
+                      mode: 'insensitive',
+                    },
+                  },
+                },
+              ],
+            },
+          });
+        const totalPages = Math.ceil(books / pageSize)
+        return {
+            status: 200,
+            data: totalPages as number || 0,
+        }
+    } catch {
+        return {
+            status: 500,
+            message: "Internal server error",
+        }
+    }
+}
+
+export async function fetchBooks(params: bookSearchParams): Promise<ActionResult<BookInfo[]>> {
+    try {
+        const { query, sortBy, sortDest, currentPage } = params
+        const pageSize = 10
+        const skip = (currentPage - 1) * pageSize
+        const books = await prisma.book.findMany({
+            where: {
+              isPublic: true,
+              OR: [
+                {
+                  title: {
+                    contains: query,
+                    mode: 'insensitive',
+                  },
+                },
+                {
+                  author: {
+                    name: {
+                      contains: query,
+                      mode: 'insensitive',
+                    },
+                  },
+                },
+                {
+                  series: {
+                    name: {
+                      contains: query,
+                      mode: 'insensitive',
+                    },
+                  },
+                },
+              ],
+            },
+            orderBy: {
+              [sortBy]: sortDest,
+            },
+            skip,
+            take: pageSize,
+            include: {
+              author: {
+                select: {
+                  username: true,
+                  name: true,
+                },
+              },
+              series: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+              _count: {
+                select: {
+                  chapters: true,
+                },
+              },
+            },
+          });
+        return {
+            status: 200,
+            data: books as BookInfo[],
+        }
+    } catch {
+        return {
+            status: 500,
+            message: "Internal server error",
+        }
+    }
+}
 
 const validateSeriesId = async (seriesId: string | null, authorId: string) => {
     if (!seriesId) return null
@@ -46,7 +183,7 @@ export const validateBookId = async (bookId: string | undefined, authorId: strin
     return book
 }
 
-export async function createBook(data: BookForm): Promise<ActionResult<Book>> {
+export async function createBook(data: BookForm): Promise<ActionResult<BookInfo>> {
     try {
         const session = await getValidatedSession()
         const seriesId = await validateSeriesId(data.seriesId, session.user.id)
@@ -58,11 +195,20 @@ export async function createBook(data: BookForm): Promise<ActionResult<Book>> {
                 isPublic: data.isPublic,
                 authorId: session.user.id,
                 seriesId: seriesId,
+                coverImage: data.image || null,
             },
+            include: {
+                author: {
+                    select: {
+                        username: true,
+                        name: true,
+                    },
+                },
+            }
         })
         return {
             status: 200,
-            data: book,
+            data: { ...book, wordCount: 0 },
         }
     } catch (err) {
         if (err instanceof Error && err.message === "UNAUTHORIZED") {
@@ -80,7 +226,7 @@ export async function createBook(data: BookForm): Promise<ActionResult<Book>> {
     }
 }
 
-export async function updateBook(data: BookForm): Promise<ActionResult<Book>> {
+export async function updateBook(data: BookForm): Promise<ActionResult<BookInfo>> {
     try {
         const session = await getValidatedSession();
         await validateBookId(data.id, session.user.id)
@@ -94,7 +240,16 @@ export async function updateBook(data: BookForm): Promise<ActionResult<Book>> {
                 description: data.description || "",
                 isPublic: data.isPublic,
                 seriesId: seriesId,
+                coverImage: data.image || null,
             },
+            include: {
+                author: {
+                    select: {
+                        username: true,
+                        name: true,
+                    },
+                },
+            }
         })
         return {
             status: 200,

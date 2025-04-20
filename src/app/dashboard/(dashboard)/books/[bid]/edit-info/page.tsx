@@ -1,5 +1,6 @@
 "use client"
 import { EditBookInfoForm } from '@/components/book/BookForm'
+import Loading from '@/components/Loading'
 import { useDashboardContext } from '@/hooks/useDashboardContext'
 import {useParams} from 'next/navigation'
 import React from 'react'
@@ -21,12 +22,10 @@ const EditBookInfoPage = () => {
   }
 
   return (
-    <div className="flex min-h-full items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm">
-        <Suspense fallback={<div>Loading...</div>}>
-            <EditBookInfoForm book={{ ...book, seriesId: book.seriesId ?? undefined }} />
-        </Suspense>
-      </div>
+    <div className="flex min-h-full  p-6 md:p-10">
+      <Suspense fallback={<Loading />}>
+        <EditBookInfoForm book={{ ...book, seriesId: book.seriesId ?? null }} />
+      </Suspense>
     </div>
   )
 }

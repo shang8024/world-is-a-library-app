@@ -25,10 +25,8 @@ export default function DashboardLayout({
     {
       isPending ? <Loading />
       : sessionError || !session ? (
-        <div className="flex flex-col items-center justify-center h-screen">
-          {sessionError && (
-            <p className="text-2xl text-red-500">{sessionError?.message || "Some thing went wrong"}</p>
-          )}
+        <div className="w-full flex flex-col items-center justify-center h-screen">
+          {sessionError && <p className="text-red-500">{sessionError.message}</p>}
           <p className="mt-4 text-lg text-center">Please sign in to access your dashboard.</p>
           <Button variant="outline" className="mt-4" onClick={() => router.push("/login")}>
             Sign In

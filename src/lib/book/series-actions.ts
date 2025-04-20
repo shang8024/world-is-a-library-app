@@ -1,12 +1,20 @@
 "use server"
 import prisma from "@/db"
 import { Prisma } from '@prisma/client'
-import { Series,Book } from "@prisma/client"
+import { Series } from "@prisma/client"
 import { getValidatedSession } from "@/lib/auth/auth-actions"
+import { auth } from "@/lib/auth/auth"
+import { headers } from "next/headers"
+import {BookInfo} from "@/lib/book/book-actions"
 
 type SeriesForm = {
     id?: string,
     name: string,
+}
+
+interface fetchData {
+    uid?: string // a dashboard fetch is not user specific
+    isPublicOnly: boolean // a dashboard fetch is not user specific
 }
 
 export type ActionResult<T = void> = {
@@ -28,21 +36,49 @@ const validateSeriesId = async (seriesId: string | undefined, authorId: string) 
     }
 }
 
-export async function fetchSerieswithBooks(): Promise<ActionResult<(Series & { books: Book[] })[]>> {
+export async function fetchSerieswithBooks(data: fetchData): Promise<ActionResult<(Series & { books: BookInfo[] })[]>> {
     try {
-        const session = await getValidatedSession()
+        const session = await auth.api.getSession({
+              headers: await headers(),
+          });
+        const uid = data?.uid || session?.user.id || null
+        if (!uid) {
+            return { status: 401, message: "Session expired, Please login again" };
+        }
+        const bookFilter = data.isPublicOnly || uid !== session?.user.id ? { isPublic: true } : {}
         const seriesWithBooks = await prisma.series.findMany({
-            where: { authorId: session.user.id },
+            where: { authorId: uid },
                 orderBy: { createdAt: 'desc' },
                 include: {
-                  books: { orderBy: { createdAt: 'asc' } },
+                  books: { 
+                    where: bookFilter,
+                    orderBy: { createdAt: 'asc' }, 
+                    include: {
+                        author: {
+                            select: {
+                                name: true,
+                                username: true,
+                            },
+                        },
+                    },
+                  },
                 },
             })
         
         const ungroupedBooks = await prisma.book.findMany({
             where: {
-              authorId: session.user.id,
+              authorId: uid,
               seriesId: null,
+              ...bookFilter,
+            },
+            orderBy: { createdAt: 'asc' },
+            include: {
+                author: {
+                    select: {
+                        name: true,
+                        username: true,
+                    },
+                },
             },
         })
         const defaultSeires = {
@@ -50,10 +86,10 @@ export async function fetchSerieswithBooks(): Promise<ActionResult<(Series & { b
             name: 'Ungrouped Books',
             createdAt: new Date(),
             updatedAt: new Date(),
-            authorId: session.user.id,
+            authorId: uid,
             books: ungroupedBooks || [],
-        } as Series & { books: Book[] }
-        const seriesWithBooksArray: (Series & { books: Book[] })[] = [...seriesWithBooks];
+        } as Series & { books: BookInfo[] };
+        const seriesWithBooksArray: (Series & { books: BookInfo[] })[] = [...seriesWithBooks];
         seriesWithBooksArray.push(defaultSeires);
         return {
             status: 200,

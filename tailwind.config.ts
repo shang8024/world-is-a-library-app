@@ -10,6 +10,7 @@ const tailwindConfig = {
     './app/**/*.{ts,tsx}',
     './src/**/*.{html,js,jsx,ts,tsx}',
     './src/components/**/*.{html,js,jsx,ts,tsx}',
+    './src/components/ui/**/*.{html,js,jsx,ts,tsx}',
     './src/app/**/*.{html,js,jsx,ts,tsx}',
     './@/**/*.{ts,tsx}',
     './@/components/**/*.{ts,tsx}',

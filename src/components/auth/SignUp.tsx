@@ -13,8 +13,6 @@ import { SignupSchema } from '@/utils/zod/signup-schema'
 import { signUp } from '@/lib/auth/auth-client'
 import TermsAndConditionsCheckBox from '../TermAndConditions'
 import generateUsername from '@/utils/generate-username'
-const baseURL = process.env.NEXT_PUBLIC_APP_URL as string;
-console.log(baseURL)
 const SignUp = () => {
     const { error, success, loading, setLoading, setError, setSuccess, resetState } = useAuthState();
 

@@ -2,62 +2,13 @@
 import React, { useEffect, useState,useTransition } from "react";
 import { SeriesListDashboard } from "@/components/book/BookSeries";
 import { useDashboardContext } from "@/hooks/useDashboardContext";
-import { User } from "@prisma/client";
 import { toast } from "sonner";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createSeries } from "@/lib/book/series-actions";
 import { Book, Series } from "@prisma/client";
-
-interface StatisticsProps {
-  stats: {
-    booksCount: number;
-    chaptersCount: number;
-    wordsCount: number;
-    likesCount: number;
-    commentsCount: number;
-  };
-  user: User;
-}
-
-
-const Statistics = ({ stats, user }: StatisticsProps) => {
-  return (
-    <div className="flex flex-col sm:flex-row gap-4 items-center justify-between w-full p-4 px-6 bg-gray-50 dark:bg-gray-800 rounded-md">
-      <div className="flex justify-start w-full">
-        <div className="flex items-center space-x-4">
-          <Avatar className="h-16 w-16 relative flex size-24 shrink-0 overflow-hidden rounded-full">
-            <AvatarImage src={user.image || ""} alt="User profile" />
-            <AvatarFallback className="w-full bg-muted flex size-full items-center justify-center rounded-full text-3xl">{user.name.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col">
-            <h2 className="text-lg font-bold">{user.name}</h2>
-            <p className="text-sm text-gray-500">{user.email}</p>
-            <p className="text-sm text-gray-500">UId:{" "}
-            <Link href={`/users/${user.username}`} className="text-sm text-gray-500 hover:underline">{user.username}</Link></p>
-            <p className="text-sm text-gray-500">Joined: {new Date(user.createdAt).toLocaleDateString()}</p>
-          </div>
-        </div>  
-      </div>
-      <div className="flex flex-col justify-center w-full ">
-        <h3 className="text-xl font-bold text-center">Statistics</h3>
-        <div className="mt-4 space-y-2">
-          <p>Books: {stats.booksCount}</p>
-          <p>Chapters: {stats.chaptersCount}</p>
-          <p>Words: {stats.wordsCount}</p>
-          <p>Likes: {stats.likesCount}</p>
-          <p>Comments: {stats.commentsCount}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
+import Statistics from "@/components/user/Stats";
 
 export default function DashboardPage() {
   const {user, isLoading, setLoading } = useDashboardContext()
@@ -174,7 +125,7 @@ export default function DashboardPage() {
           </Button>
         </div>
         <div className="w-full p-2">
-          <SeriesListDashboard serieslist={filteredSeries} />
+          <SeriesListDashboard serieslist={filteredSeries} mode="card"/>
         </div>
       </section>
     </div>

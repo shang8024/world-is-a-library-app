@@ -15,6 +15,8 @@ import { ChapterSchema } from '@/utils/zod/chapter-schema'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import * as Switch from '@radix-ui/react-switch'
 import { useForm } from 'react-hook-form'
+import { ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
 
 function ChapterForm({chapter}: {chapter: Chapter}) {
   const {isLoading, setLoading, chapters, setChapters} = useEditorContext()
@@ -42,7 +44,6 @@ function ChapterForm({chapter}: {chapter: Chapter}) {
           title: values.title,
           content: values.content,
           isPublic: values.isPublic,
-          wordCount: values.content.split.length,
         })
         if (result.status !== 200 || !result.data) throw new Error(result.message)
         return result.data
@@ -184,6 +185,11 @@ export default function ChapterEditorPage() {
   if (error) return <div className="text-red-500">{error}</div>
   return (
     <div className="min-h-full flex flex-col w-full items-start justify-start p-6 md:p-10">
+        <div className="w-full flex justify-start items-center mb-4 sm:hidden">
+            <Link href={`/dashboard/book-editor/${chapter?.bookId}/chapters`} className="text-gray-500 hover:text-gray-700 transition duration-200">
+                <ArrowLeft className="w-4 h-4" /> Back to Chapter Select
+            </Link>
+        </div>
         <div className="w-full flex justify-between items-center">
             <h1 className="text-2xl font-bold">Chapter Editor</h1>
         </div>

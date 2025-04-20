@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { Book } from "@prisma/client";
 import { fetchChaptersIndex } from "@/lib/book/chapters-actions";
 import Loading from "@/components/Loading";
+import ErrorPage from "@/components/Error";
 
 export type ChapterIndex = {
     id: string,
@@ -41,7 +42,7 @@ export const EditorContextProvider = ({ children, bookId}: { children: React.Rea
     const [curChapter, setCurChapter] = useState<string | null>(null);
     useEffect(() => {
         setLoading(true)
-        fetchChaptersIndex(bookId)
+        fetchChaptersIndex({bookId})
         .then((res) => {
             if (res.status !== 200 || !res.data) throw new Error(res.message);
             return res.data;
@@ -63,11 +64,7 @@ export const EditorContextProvider = ({ children, bookId}: { children: React.Rea
     }
     if (error || !book) {
         return (
-            <div className="flex min-h-full items-center justify-center p-6 md:p-10">
-                <div className="w-full max-w-sm">
-                    <h1 className="text-2xl font-bold">{error || "Book not found"}</h1>
-                </div>
-            </div>
+            <ErrorPage message={error || "Book not found"} />
         );
     }
 

@@ -14,9 +14,10 @@ import { Separator } from "@/components/ui/separator"
 import { updateSeries, deleteSeries } from "@/lib/book/series-actions"
 import { BookListDashboard, BookListPublic } from "@/components/book/BookList"
 import { useDashboardContext } from "@/hooks/useDashboardContext"
+import { BookInfo } from "@/lib/book/book-actions"
 
 interface SeriesListItemProps {
-  series: Series & { books: Book[] };
+  series: Series & { books: BookInfo[] };
   editable?: boolean;
   isLoading?: boolean;
   isEditing?: boolean;
@@ -25,15 +26,17 @@ interface SeriesListItemProps {
     handleSubmit: (newValue: string, callback:()=>void) => void;
     startEditing: () => void;
     deleteSeries: () => void;
-  }
+  },
+  mode: 'card' | 'list';
 }
 
 
 interface SeriesListProps {
   serieslist: (Series & { books: Book[] })[];
+  mode: 'card' | 'list';
 }
 
-const SeriesListItem = ({ series, editable, isLoading, isEditing, seriesActions }: SeriesListItemProps) => {
+const SeriesListItem = ({ series, editable, isLoading, isEditing, seriesActions, mode }: SeriesListItemProps) => {
     const [inputValue, setInputValue] = useState<string>(series.name)
     const [isOpen, setIsOpen] = React.useState(true)
 
@@ -100,27 +103,29 @@ const SeriesListItem = ({ series, editable, isLoading, isEditing, seriesActions 
             <div className="flex items-center justify-center w-full h-full p-4 text-sm text-muted-foreground">
               No book found
             </div>
-          ) : editable ? (
-            <BookListDashboard books={series.books}/>
-          ) : (
-            <BookListPublic books ={series.books}/>
-          )}
+          ) : editable ? <BookListDashboard books={series.books}/>
+          : <BookListPublic books ={series.books} mode={mode}/>
+          }
         </CollapsibleContent>
       </Collapsible>
     )
 }
 
-const SeriesListPublic = ({ serieslist }: SeriesListProps) => {
+const SeriesListPublic = ({ serieslist, mode }: SeriesListProps) => {
   return (
     <div className="grid w-full  gap-4">
-      {serieslist.map((series, index) => (
-        <SeriesListItem series={series} key={index}/>
-      ))}
+    { !serieslist || serieslist.length === 0 ? (
+      <div className="flex items-center justify-center w-full h-full p-4 text-sm text-muted-foreground">
+          No results found
+      </div>
+    ) : (
+      serieslist.map((series, index) => <SeriesListItem series={series} key={index} mode={mode}/>)
+    )}
     </div>
   )
 }
 
-const SeriesListDashboard = ({ serieslist }: SeriesListProps) => {
+const SeriesListDashboard = ({ serieslist, mode }: SeriesListProps) => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const {setSeries, isLoading, setLoading} = useDashboardContext();
 
@@ -136,42 +141,39 @@ const SeriesListDashboard = ({ serieslist }: SeriesListProps) => {
     if (name === "" || serieslist[index].name === name) {
       finishEditing();
       callback();
-
       return;
     }
-    console.log("handleSubmit", id, name, serieslist[index].name)
-      setLoading(true);
-      toast.promise(
-        (async () => {
-            const result = await updateSeries({
-                id: id,
-                name: name,
-            });
-            if (result.status !== 200) {
-                throw new Error(result.message)
-            }
-        })(),
-        {
-          loading: "Loading...",
-          success: () => {
-            const updatedSeries = [...serieslist];
-            updatedSeries[index] = {
-              ...updatedSeries[index],
+    setLoading(true);
+    toast.promise(
+      (async () => {
+          const result = await updateSeries({
+              id: id,
               name: name,
-            };
-            setSeries(updatedSeries);
-            return `Book information edited successfully`;
-          },
-          error: (error) => {
-            callback();
-            return error.message || "Something went wrong";
-          },
-          finally: () => {
-            finishEditing();
+          });
+          if (result.status !== 200) {
+              throw new Error(result.message)
           }
+      })(),
+      {
+        loading: "Loading...",
+        success: () => {
+          const updatedSeries = [...serieslist];
+          updatedSeries[index] = {
+            ...updatedSeries[index],
+            name: name,
+          };
+          setSeries(updatedSeries);
+          return `Book information edited successfully`;
+        },
+        error: (error) => {
+          callback();
+          return error.message || "Something went wrong";
+        },
+        finally: () => {
+          finishEditing();
         }
-      );
-
+      }
+    );
   };
 
   const handleDelete = (id: string) => {
@@ -228,6 +230,7 @@ const SeriesListDashboard = ({ serieslist }: SeriesListProps) => {
               startEditing: () => setEditingIndex(index),
               deleteSeries: () => handleDelete(series.id),
             }}
+            mode={mode}
           />
         )))
       }

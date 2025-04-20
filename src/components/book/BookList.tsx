@@ -1,3 +1,4 @@
+"use client"
 import * as React from "react"
 import { Book } from "@prisma/client"
 import {toast} from 'sonner'
@@ -18,15 +19,57 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
-import { deleteBook } from "@/lib/book/book-actions"
+import { BookInfo, deleteBook } from "@/lib/book/book-actions"
+import Link from "next/link"
 
 interface BookListProps {
     editable?: boolean;
     onDelete?: (bookId: string) => void;
     isLoading?: boolean;
-  }
+}
 
-function BookCardListItem({ book, editable, isLoading, onDelete}:  {book: Book } & BookListProps) {
+// BookListItem should only be used in the public view of the book list
+function BookListItem({ book }: { book: BookInfo }) {
+  const router = useRouter()
+  return (
+    <div className="flex flex-row gap-2 py-2 border-b-2 sm:p-2 min-w-0">
+      <div className=" w-[120px] h-[150px] sm:w-[120px] sm:h-[150px] flex-shrink-0">
+        <BookCard 
+          book={book}
+          onClick={() => router.push(`/books/${book.id}`)}
+        />
+      </div>
+      <div className="flex flex-col justify-between min-w-0 w-full ">
+        <div className="flex flex-col gap-1 flex-wrap break-words w-full min-w-0">
+          <Link
+            href={`/books/${book.id}`}
+            className=" text-xl font-semibold text-primary dark:text-primary-background truncate hover:underline line-clamp-2 text-wrap break-words w-full"
+          >
+            {book.title}
+          </Link>
+          <p className="text-sm text-gray-600 truncate">
+            by{' '}
+            <Link 
+              href={`/users/${book?.author?.username}`}
+              className="no-underline hover:underline text-gray-600"
+            >
+              {book?.author?.name}
+            </Link>
+          </p>
+        </div>
+        <p className="text-sm text-gray-700 mt-2 flex-1 text-wrap break-words min-w-0 w-full ">
+          {book.description}
+        </p>
+        <div className="flex justify-between text-xs text-gray-500 mt-4 min-w-0 w-full ">
+          <span>{book.wordCount} words</span>
+          <span>Updated {new Date(book.updatedAt).toLocaleDateString()} at {new Date(book.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+        </div>
+  </div>
+    </div>
+  )
+}
+
+function BookCardFlexItem({ book, editable, isLoading, onDelete}:  {book: Book } & BookListProps) {
   const router = useRouter()
   return (
     <div className="p-2 flex-col inline-flex w-[300px] gap-2 sm:w-[240px] sm:justify-center sm:items-center">
@@ -53,6 +96,7 @@ function BookCardListItem({ book, editable, isLoading, onDelete}:  {book: Book }
         <p className="text-left text-xl font-semibold break-words flex-1 p-2 break-all text-primary dark:text-primary-background">
           {book.title}
         </p>
+        {editable && (
         <div className="flex flex-col gap-1 w-[76px] sm:w-[60px]">
           <Button
             variant="ghost"
@@ -71,6 +115,7 @@ function BookCardListItem({ book, editable, isLoading, onDelete}:  {book: Book }
             DELETE
           </Button>
         </div>
+        )}
       </div>
     </div>
   )
@@ -83,7 +128,7 @@ function CarouselDisplay({books, editable, onDelete, isLoading}: {books: Book[] 
       <CarouselContent className="ml-4 w-[320px] ">
         {books.map((book, index) => (
           <CarouselItem key={index} className="min-w-0 shrink-0 grow-0 basis-full pl-4">
-            <BookCardListItem 
+            <BookCardFlexItem 
               book={book} 
               editable={editable} 
               isLoading={isLoading}
@@ -99,7 +144,7 @@ function CarouselDisplay({books, editable, onDelete, isLoading}: {books: Book[] 
   )
 }
  
-function BookListDashboard({ books }: {books: Book[] }) {
+function BookListDashboard({ books }: {books: Book[]}) {
   const {serieslist, setSeries, isLoading, setLoading} = useDashboardContext()
 
   const handleDelete = async (bookId: string) => {
@@ -145,9 +190,9 @@ function BookListDashboard({ books }: {books: Book[] }) {
               isLoading={isLoading}
             />
         </div>
-        <div className="hidden sm:flex flex-wrap gap-8 justify-start w-full">
+        <div className="hidden sm:flex flex-wrap gap-4 justify-start w-full">
           {books.map((book) => (
-            <BookCardListItem 
+            <BookCardFlexItem 
                 book={book} 
                 editable={true}
                 onDelete={handleDelete}
@@ -159,16 +204,27 @@ function BookListDashboard({ books }: {books: Book[] }) {
     </div>
   )
 }
-const BookListPublic = ({ books}: {books: Book[] }) => {
-  console.log("books", books)
+
+
+const BookListPublic = ({books, mode}: {books: BookInfo[], mode: 'card' | 'list' }) => {
   return (
-    <div className="flex flex-wrap gap-auto w-full p-2 gap-3">
-      {books.map((book) => (
-        <div key={book.id} className="w-[150px] h-[200px]">
-        <BookCard book={book}/>
-        </div>
-      ))}
+    <div className="justify-center items-center flex flex-col w-full h-full">
+      <div 
+        className={`w-full ${
+          mode === 'card'
+            ? 'flex flex-wrap justify-center sm:justify-start gap-4'
+            : 'flex flex-col gap-4'
+        }`}
+      >
+        {books.map((book) =>
+          mode === 'card' ? (
+            <BookCardFlexItem book={book} key={book.id} />
+          ) : (
+            <BookListItem book={book} key={book.id} />
+          )
+        )}
     </div>
+  </div>
   )
 }
 

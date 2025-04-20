@@ -20,19 +20,23 @@ import {
   } from "@/components/ui/select"
 import { Textarea } from '@/components/ui/textarea'
 import * as Switch from "@radix-ui/react-switch";
-import CardWrapper from '../CardWrapper'
 import { createBook, updateBook } from '@/lib/book/book-actions'
 import { useDashboardContext } from '@/hooks/useDashboardContext'
-interface Book {
+import { Book } from '@prisma/client'
+import Image from 'next/image'
+type BookForm = {
     id?: string,
     title: string,
-    description?: string,
     isPublic: boolean,
-    seriesId?: string,
+    description: string,
+    seriesId: string | null,
+    image?: string,
 }
 
-function BookForm({book, action}: {book?: Book, action: (values: z.infer<typeof BookSchema>, callback: () => void) => void}) {
+function BookForm({book, action}: {book?: Book, action: (values: BookForm, callback: () => void) => void}) {
     const {serieslist,isLoading, setLoading} = useDashboardContext()
+    const [url, setUrl] = React.useState<string>(book?.coverImage || "/file.svg")
+    const [file, setFile] = React.useState<File | null>(null)
     const form = useForm<z.infer<typeof BookSchema>>({
         resolver: zodResolver(BookSchema),
         defaultValues: {
@@ -44,12 +48,41 @@ function BookForm({book, action}: {book?: Book, action: (values: z.infer<typeof 
     })
     const onSubmit = async (values: z.infer<typeof BookSchema>) => {
         setLoading(true)
-        action(values, () => setLoading(false))
+        action({...values, seriesId: values.series, image: url}, () => setLoading(false))
+    }
+
+    const uploadImage = async () => {
+        if (!file) {
+            toast.error("Please select an image")
+            return
+        }
+        const formData = new FormData();
+        formData.append("file", file);
+    
+        try {
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
+    
+          if (!res.ok) {
+            toast.error("Failed to upload file")
+          }
+    
+          const data = await res.json();
+          setUrl(data.url);
+          toast.success("File uploaded successfully")
+        } catch (err) {
+          toast.error("Failed to upload file")
+          console.error(err);
+        }
     }
 
     return (
         <Form {...form}>
-            <form className='space-y-4' onSubmit={form.handleSubmit(onSubmit)}>
+            <form className='space-y-4 w-full h-fit' onSubmit={form.handleSubmit(onSubmit)}>
+                <div className='flex flex-wrap space-y-4 gap-8'>
+                    <div className='w-full md:flex-1 space-y-4'>
                     <FormField
                         control={form.control}
                         name="title"
@@ -141,10 +174,42 @@ function BookForm({book, action}: {book?: Book, action: (values: z.infer<typeof 
                             </FormItem>
                         )}
                     />
-                    <div className='flex justify-end items-center space-x-2'>
-                    <Button disabled={isLoading} type="submit" className='p-2 bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring focus-visible:ring-[3px] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none' >save cahnges</Button>
+
                     </div>
-                </form>
+                    <div className=' flex flex-col items-center gap-2 md:flex-1 mb-4 w-full'>
+                        <div className="relative w-[200px] h-[250px]">
+                            <Image
+                                src={url}
+                                alt="Book Cover"
+                                fill
+                                className="object-cover rounded-md"
+                            />
+                        </div>
+                        <div>
+                            <Input 
+                                type="file"
+                                accept="image/*" 
+                                id="file-upload"
+                                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                            />
+                            <Button
+                                variant="outline" 
+                                className='w-full' 
+                                onClick={(e) => {
+                                    e.preventDefault()
+                                    uploadImage()
+                                }}
+                                disabled={isLoading}
+                            >
+                                Upload
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+                <div className='flex justify-end items-center space-x-2 w-[50%]'>
+                    <Button disabled={isLoading} type="submit" className='p-2 bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring focus-visible:ring-[3px] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none' >save cahnges</Button>
+                </div>
+            </form>
         </Form>
     )
 }
@@ -154,7 +219,7 @@ function BookForm({book, action}: {book?: Book, action: (values: z.infer<typeof 
 function CreateBookForm() {
     const [isPending, startTransition] = useTransition();
     const router = useRouter()
-    const handleAction = async (values : z.infer<typeof BookSchema>, callback: () => void) => {
+    const handleAction = async (values : BookForm, callback: () => void) => {
         startTransition(async () => {
             toast.promise(
                 (async () => {
@@ -162,7 +227,8 @@ function CreateBookForm() {
                         title: values.title,
                         description: values.description,
                         isPublic: values.isPublic,
-                        seriesId: (values.series === "-1" ? null : values.series),
+                        seriesId: (values.seriesId === "-1" ? null : values.seriesId),
+                        image: values.image,
                     });
                     if (result.status !== 200) {
                         throw new Error(result.message)
@@ -188,20 +254,19 @@ function CreateBookForm() {
         });
     };
     return (
-        <CardWrapper
-            cardTitle='Create Book'>
+        <div className='w-full justify-center flex min-h-full p-6 md:p-10'>
                 <BookForm
                     action={handleAction}
                 />
-        </CardWrapper>
+        </div>
  );
 }
 
 function EditBookInfoForm({book} : {book: Book}) {
     const [isPending, startTransition] = useTransition();
     const router = useRouter()
-    const handleAction = async (values : z.infer<typeof BookSchema>, callback: () => void) => {
-      const seriesId = (values.series === "-1" ? null : values.series)
+    const handleAction = async (values: BookForm, callback: () => void) => {
+      const seriesId = (values.seriesId === "-1" ? null : values.seriesId)
       if (book.description === values.description && book.isPublic === values.isPublic && book.seriesId === seriesId && book.title === values.title) {
         toast.error("No changes made")
         callback()
@@ -219,7 +284,8 @@ function EditBookInfoForm({book} : {book: Book}) {
                       title: values.title,
                       description: values.description,
                       isPublic: values.isPublic,
-                      seriesId: (values.series === "-1" ? null: values.series),
+                      seriesId: seriesId,
+                      image: values.image,
                   });
                   if (result.status !== 200) {
                       throw new Error(result.message)
@@ -245,13 +311,12 @@ function EditBookInfoForm({book} : {book: Book}) {
       });
   };
     return (
-        <CardWrapper
-            cardTitle='Edit Book'>
+        <div className='flex min-h-full items-center justify-center p-6 md:p-10 w-full'>
                 <BookForm
                     book={book}
                     action={handleAction}
                 />
-        </CardWrapper>
+        </div>
     )
 }
 

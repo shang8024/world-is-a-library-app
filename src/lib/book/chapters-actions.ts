@@ -1,15 +1,15 @@
 "use server"
 import prisma from "@/db"
 import { getValidatedSession } from "@/lib/auth/auth-actions"
-import { Book, Chapter } from "@prisma/client"
+import { Chapter } from "@prisma/client"
 import { validateBookId } from "@/lib/book/book-actions"
+import {BookInfo} from "@/lib/book/book-actions"
 
 type ChaptersForm = {
     id: string,
     title: string,
     isPublic: boolean,
     content: string,
-    wordCount: number,
 }
 
 type ChapterIndex = {
@@ -42,13 +42,22 @@ const validateChapterId = async (chapterId: string, authorId: string) => {
 }
 
 
-export async function fetchChaptersIndex(bookId: string): Promise<ActionResult<{book:Book, chapters: ChapterIndex[] }>> {
+export async function fetchChaptersIndex({ bookId, isPublic }: { bookId: string; isPublic?: boolean }): Promise<ActionResult<{ book: BookInfo; chapters: ChapterIndex[] }>> {
     try {
         const session = await getValidatedSession()
         const chaptersIndex = await prisma.book.findFirst({
             where: { id: bookId },
             include: {
+                author: {
+                    select: {
+                        username: true,
+                        name: true,
+                    },
+                },
                 chapters: {
+                    where: {
+                        isPublic: isPublic,
+                    },
                     select: {
                         id: true,
                         title: true,
@@ -61,15 +70,24 @@ export async function fetchChaptersIndex(bookId: string): Promise<ActionResult<{
                         sortOrder: "asc",
                     },
                 },
+                _count: {
+                    select: {
+                        chapters: {
+                            where: {
+                                isPublic: isPublic,
+                            },
+                        }
+                    },
+                },
             },
         })
-        if (!chaptersIndex) {
+        if (!chaptersIndex || isPublic && !chaptersIndex.isPublic && chaptersIndex.authorId !== session.user.id) {
             return {
                 status: 404,
                 message: "Book not found",
             }
         }
-        if (chaptersIndex.authorId !== session.user.id) {
+        if (!isPublic && chaptersIndex.authorId !== session.user.id) {
             return {
                 status: 403,
                 message: "Unauthorized access",
@@ -78,7 +96,7 @@ export async function fetchChaptersIndex(bookId: string): Promise<ActionResult<{
         return {
             status: 200,
             data: {
-                book: chaptersIndex as Book,
+                book: chaptersIndex as BookInfo,
                 chapters: chaptersIndex.chapters as ChapterIndex[],
             },
         }
@@ -86,7 +104,6 @@ export async function fetchChaptersIndex(bookId: string): Promise<ActionResult<{
         if (err instanceof Error && err.message === "UNAUTHORIZED") {
             return { status: 401, message: "Session expired, Please login again" };
         }
-        console.error("Error fetching chapters", err)
         return {
             status: 500,
             message: "Error fetching chapters",
@@ -152,21 +169,31 @@ export async function createChapter(bookId: string): Promise<ActionResult<Chapte
 export async function updateChapter(data: ChaptersForm): Promise<ActionResult<Chapter>> {
     try {
         const session = await getValidatedSession()
-        await validateChapterId(data.id, session.user.id)
-        const res = await prisma.chapter.update({
-            where: {
-                id: data.id,
-            },
-            data: {
+        const oldchapter = await validateChapterId(data.id, session.user.id)
+        const newWordCount = data.content.length
+        const wordCountDelta = newWordCount - oldchapter.wordCount
+        const [updatedChapter] = await prisma.$transaction([
+            prisma.chapter.update({
+              where: { id: data.id },
+              data: {
                 title: data.title,
                 isPublic: data.isPublic,
                 content: data.content,
-                wordCount: data.wordCount,
-            },
-        })
+                wordCount: newWordCount,
+              },
+            }),
+            prisma.book.update({
+              where: { id: oldchapter.bookId },
+              data: {
+                wordCount: {
+                  increment: wordCountDelta,
+                },
+              },
+            }),
+          ]);
         return {
             status: 200,
-            data: res,
+            data: updatedChapter,
         }
     } catch (err) {
         if (err instanceof Error && err.message === "UNAUTHORIZED") {
@@ -185,12 +212,20 @@ export async function updateChapter(data: ChaptersForm): Promise<ActionResult<Ch
 export async function deleteChapter(chapterId: string): Promise<ActionResult> {
     try {
         const session = await getValidatedSession()
-        await validateChapterId(chapterId, session.user.id)
-        await prisma.chapter.delete({
-            where: {
-                id: chapterId,
-            },
-        })
+        const chapter = await validateChapterId(chapterId, session.user.id)
+        await prisma.$transaction([
+            prisma.chapter.delete({
+              where: { id: chapterId },
+            }),
+            prisma.book.update({
+              where: { id: chapter.bookId },
+              data: {
+                wordCount: {
+                  increment: -chapter.wordCount, // Decrement the book's word count
+                },
+              },
+            }),
+          ]);
         return {
             status: 200,
         }
