@@ -18,7 +18,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
-import { deleteBook } from "@/lib/book/book-actions"
+import { BookInfo, deleteBook } from "@/lib/book/book-actions"
+import Link from "next/link"
 
 interface BookListProps {
     editable?: boolean;
@@ -26,7 +27,48 @@ interface BookListProps {
     isLoading?: boolean;
 }
 
-function BookCardListItem({ book, editable, isLoading, onDelete}:  {book: Book } & BookListProps) {
+// BookListItem should only be used in the public view of the book list
+function BookListItem({ book }: { book: BookInfo }) {
+  const router = useRouter()
+  return (
+    <div className="flex flex-row gap-2 py-2 border-b-2 sm:p-2">
+      <div className=" w-[120px] h-[150px] sm:w-[120px] sm:h-[150px] flex-shrink-0">
+        <BookCard 
+          book={book}
+          onClick={() => router.push(`/books/${book.id}`)}
+        />
+      </div>
+      <div className="flex flex-col justify-between w-[calc(100vw-180px)] sm:w-[calc(100vw-336px)] md:w-[calc(100vw-368px)] lg:w-[calc(100vw-420px)]">
+        <div className="flex flex-col gap-1 flex-wrap break-words w-full">
+          <Link
+            href={`/books/${book.id}`}
+            className=" text-xl font-semibold text-primary dark:text-primary-background truncate hover:underline line-clamp-2 text-wrap break-words w-full"
+          >
+            {book.title}
+          </Link>
+          <p className="text-sm text-gray-600 truncate">
+            by{' '}
+            <Link 
+              href={`/users/${book.author.username}`}
+              className="no-underline hover:underline text-gray-600"
+            >
+              {book.author.name}
+            </Link>
+          </p>
+        </div>
+        <p className="text-sm text-gray-700 mt-2 flex-1 text-wrap break-words">
+          {book.description}
+        </p>
+        <div className="flex justify-between text-xs text-gray-500 mt-4 w-full">
+          <span>{book.wordCount} words</span>
+          <span>Updated {new Date(book.updatedAt).toLocaleDateString()} at {new Date(book.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+        </div>
+  </div>
+    </div>
+  )
+}
+
+function BookCardFlexItem({ book, editable, isLoading, onDelete}:  {book: Book } & BookListProps) {
   const router = useRouter()
   return (
     <div className="p-2 flex-col inline-flex w-[300px] gap-2 sm:w-[240px] sm:justify-center sm:items-center">
@@ -163,7 +205,7 @@ function BookListDashboard({ books, mode }: {books: Book[], mode: 'card' | 'list
 }
 
 
-const BookListPublic = ({books, mode}: {books: Book[], mode: 'card' | 'list' }) => {
+const BookListPublic = ({books, mode}: {books: BookInfo[], mode: 'card' | 'list' }) => {
   return (
     <div className="justify-center items-center flex flex-col w-full h-full">
       <div 
@@ -173,12 +215,13 @@ const BookListPublic = ({books, mode}: {books: Book[], mode: 'card' | 'list' }) 
             : 'flex flex-col gap-4'
         }`}
       >
-        {books.map((book) => (
-          <BookCardFlexItem 
-            book={book}
-            key ={book.id}
-          />
-        ))}
+        {books.map((book) =>
+          mode === 'card' ? (
+            <BookCardFlexItem book={book} key={book.id} />
+          ) : (
+            <BookListItem book={book} key={book.id} />
+          )
+        )}
     </div>
   </div>
   )

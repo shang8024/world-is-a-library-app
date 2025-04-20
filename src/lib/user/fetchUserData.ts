@@ -1,6 +1,7 @@
 import prisma from '@/db';
-import {User, Series, Book} from '@prisma/client';
+import {User, Series } from '@prisma/client';
 import {fetchSerieswithBooks} from '@/lib/book/series-actions';
+import { BookInfo } from '@/lib/book/book-actions';
 
 export type ActionResult<T = void> = {
   status: number
@@ -17,7 +18,7 @@ export interface UserProfile {
     commentsCount: number
   }
   user: User
-  serieslist: (Series & { books: Book[] })[]
+  serieslist: (Series & { books: BookInfo[] })[]
 }
 
 export async function fetchUser(uid: string): Promise<ActionResult<User>> {

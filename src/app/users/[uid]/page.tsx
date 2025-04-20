@@ -6,17 +6,34 @@ import Statistics from "@/components/user/Stats";
 import { Book, Series } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { BookInfo } from "@/lib/book/book-actions";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/ui/toggle-group"
+import { List, LayoutGrid } from "lucide-react";
 
 export default function UserDashboardPage() {
   const { user, stats, serieslist } = useUserProfileContext()
   const [searchFilter, setSearchFilter] = useState<string>("")
   const [filteredSeries, setFilteredSeries] = useState(serieslist);
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
+  const [sortBy, setSortBy] = useState<'title' | 'createdAt' | 'updatedAt' | 'wordCount'>('createdAt');
+  const [sortDest, setSortDest] = useState<'asc' | 'desc'>('asc');
 
-  const filterList = (serieslist: (Series & { books: Book[] })[], filter: string) => {
-    const filterlowercase = filter.toLowerCase()
+  const filterList = (serieslist: (Series & { books: BookInfo[] })[], filter: string) => {
+    const filterlowercase = filter.toLowerCase();
       // filter out the books and series that do not match the filter
-    return serieslist.filter((series) => {
+    const filtered = serieslist.filter((series) => {
       const seriesName = series.name.toLowerCase()
       const books = series.books.filter((book) => book.title.toLowerCase().includes(filterlowercase))
       return seriesName.includes(filterlowercase) || books.length > 0
@@ -28,10 +45,30 @@ export default function UserDashboardPage() {
           books: books,
       }
     })
+    // sort the filtered list by the selected sortBy and sortDest
+    const sorted = filtered.map((series) => {
+      const sortedBooks = series.books.sort((a, b) => {
+        if (sortBy === 'title') {
+          return sortDest === 'asc' ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title);
+        } else if (sortBy === 'createdAt') {
+          return sortDest === 'asc' ? new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime() : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        } else if (sortBy === 'updatedAt') {
+          return sortDest === 'asc' ? new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime() : new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+        } else if (sortBy === 'wordCount') {
+          return sortDest === 'asc' ? a.wordCount - b.wordCount : b.wordCount - a.wordCount;
+        }
+        return 0; // Default return value to ensure a number is always returned
+      });
+      return {
+        ...series,
+        books: sortedBooks,
+      }
+    });
+    return sorted;
   }
   useEffect(() => {
       setFilteredSeries(filterList(serieslist, searchFilter));
-  }, [serieslist, searchFilter]);
+  }, [serieslist, searchFilter, sortBy, sortDest])
   
   return (
     <div className="flex flex-col w-full pt-6 md:p-10 gap-2 sm:px-6 p-4">
@@ -48,6 +85,48 @@ export default function UserDashboardPage() {
           />
         </div>
         <div>
+        <div className="flex items-center gap-4">
+          <div>
+          Sort by:
+          <div className="flex items-center gap-2">
+          <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'title' | 'createdAt' | 'updatedAt' | 'wordCount')}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue  placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="title" onClick={() => setSortBy('title')}>Title</SelectItem>
+                <SelectItem value="createdAt" onClick={() => setSortBy('createdAt')}>Created At</SelectItem>
+                <SelectItem value="updatedAt" onClick={() => setSortBy('updatedAt')}>Updated At</SelectItem>
+                <SelectItem value="wordCount" onClick={() => setSortBy('wordCount')}>Word Count</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <Select value={sortDest} onValueChange={(value) => setSortDest(value as 'asc' | 'desc')}>
+            <SelectTrigger >
+              <SelectValue  placeholder="dest" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="asc" onClick={() => setSortDest('asc')}>asc</SelectItem>
+                <SelectItem value="desc" onClick={() => setSortDest('desc')}>desc</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          </div>
+          </div>
+          <div>
+            View mode:
+            <ToggleGroup type="single" value={viewMode} onValueChange={(value) => setViewMode(value as 'card' | 'list')} className="flex gap-2">
+              <ToggleGroupItem value="list" aria-label="List view">
+                <List className="w-4 h-4" />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="card" aria-label="Card view">
+                <LayoutGrid className="w-4 h-4" />
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+        </div>
           {/* TODO: add toggle group for view mode */}
           {/* TODO: add sort select box [by ...][asc/desc]*/} 
         </div>
