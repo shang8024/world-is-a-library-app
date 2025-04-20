@@ -66,6 +66,7 @@ export default function UserDashboardPage() {
   }
   useEffect(() => {
       setFilteredSeries(filterList(serieslist, searchFilter));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serieslist, searchFilter, sortBy, sortDest])
   
   return (

@@ -1,5 +1,6 @@
 "use client"
 import { useSession } from "@/lib/auth/auth-client"
+import Link from "next/link"
 
 export default function Home() {
     const {
@@ -15,12 +16,12 @@ export default function Home() {
     <p className="text-lg md:text-xl max-w-2xl mb-8">
       Share your knowledge. Publish chapters. Connect with readers.
     </p>
-    <a
+    <Link
       href="/books"
       className="px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition"
     >
       Start Exploring
-    </a>
+    </Link>
   </section>
 
   {/* Features */}
@@ -61,12 +62,12 @@ export default function Home() {
   <section className="bg-indigo-50 py-16 px-6 text-center">
     <h2 className="text-3xl font-bold mb-4">Start writing today</h2>
     <p className="mb-6">Join writers and thinkers around the world</p>
-    <a
+    <Link
       href={isPending || !session ? "/login" : "/dashboard"}
       className="inline-block px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition"
     >
       Create Your First Chapter
-    </a>
+    </Link>
   </section>
   </main>
   );
