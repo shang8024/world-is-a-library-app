@@ -49,6 +49,25 @@ export const auth = betterAuth({
         maxAge: 60 * 5, // 5 minutes
     },
   },
+  
+  advanced: {
+    useSecureCookies: process.env.NODE_ENV === "production",
+    crossSubDomainCookies: {
+      enabled: true,
+      domain: process.env.NEXTAUTH_COOKIE_DOMAIN || undefined,
+    },
+    defaultCookieAttributes: {
+      secure: true,
+      sameSite: "none",
+      domain: process.env.NEXTAUTH_COOKIE_DOMAIN || undefined,
+    },
+    cookie: {
+      sameSite: "none",
+      secure: true,
+      domain: process.env.NEXTAUTH_COOKIE_DOMAIN || undefined,
+      path: "/",
+    },
+  },
   plugins: [
     username(),
     nextCookies(),
