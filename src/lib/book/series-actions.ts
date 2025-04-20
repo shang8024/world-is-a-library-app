@@ -1,7 +1,7 @@
 "use server"
 import prisma from "@/db"
 import { Prisma } from '@prisma/client'
-import { Series,Book } from "@prisma/client"
+import { Series } from "@prisma/client"
 import { getValidatedSession } from "@/lib/auth/auth-actions"
 import { auth } from "@/lib/auth/auth"
 import { headers } from "next/headers"
