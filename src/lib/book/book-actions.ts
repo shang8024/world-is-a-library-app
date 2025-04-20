@@ -10,6 +10,7 @@ type BookForm = {
     isPublic: boolean,
     description: string,
     seriesId: string | null,
+    image?: string,
 }
 
 export type BookInfo = Book & {
@@ -77,6 +78,7 @@ export async function createBook(data: BookForm): Promise<ActionResult<BookInfo>
                 isPublic: data.isPublic,
                 authorId: session.user.id,
                 seriesId: seriesId,
+                coverImage: data.image || null,
             },
             include: {
                 author: {
@@ -121,6 +123,7 @@ export async function updateBook(data: BookForm): Promise<ActionResult<BookInfo>
                 description: data.description || "",
                 isPublic: data.isPublic,
                 seriesId: seriesId,
+                coverImage: data.image || null,
             },
             include: {
                 author: {

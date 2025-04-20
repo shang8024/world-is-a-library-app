@@ -41,7 +41,7 @@ const ChapterIndexItem = ({chapter, chapterActions}: ChapterIndexItemProps) => {
         }
       }
       >
-        <h1 className="text-lg font-bold">{chapter.title}
+        <h1 className="text-lg font-bold break-all line-clamp-2">{chapter.title}
           {!chapter.isPublic && <span className="text-sm text-gray-500"> (Draft)</span>}
         </h1>
         <p className="text-sm text-gray-500">
@@ -180,7 +180,7 @@ export function ChapterIndexMenu() {
                 </Tooltip>
             </TooltipProvider>
         </div>
-        <h1 className="text-2xl font-bold text-center">{book?.title}</h1>
+        <h1 className="text-2xl font-bold text-center break-all line-clamp-3">{book?.title}</h1>
         <Input
           type="text"
           placeholder="Search books and series..."
