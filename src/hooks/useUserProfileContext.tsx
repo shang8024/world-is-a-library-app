@@ -1,9 +1,10 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import {Book, Series, User} from "@prisma/client"
+import { Series, User} from "@prisma/client"
+import { BookInfo } from "@/lib/book/book-actions";
 interface UserProfileContextProps {
-    serieslist: (Series & { books: Book[] })[]
+    serieslist: (Series & { books: BookInfo[] })[]
     user: User
     stats: {
         booksCount: number

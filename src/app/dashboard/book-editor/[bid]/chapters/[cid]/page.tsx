@@ -44,7 +44,6 @@ function ChapterForm({chapter}: {chapter: Chapter}) {
           title: values.title,
           content: values.content,
           isPublic: values.isPublic,
-          wordCount: values.content.split.length,
         })
         if (result.status !== 200 || !result.data) throw new Error(result.message)
         return result.data

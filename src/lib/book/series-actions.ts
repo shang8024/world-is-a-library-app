@@ -5,6 +5,7 @@ import { Series,Book } from "@prisma/client"
 import { getValidatedSession } from "@/lib/auth/auth-actions"
 import { auth } from "@/lib/auth/auth"
 import { headers } from "next/headers"
+import {BookInfo} from "@/lib/book/book-actions"
 
 type SeriesForm = {
     id?: string,
@@ -35,7 +36,7 @@ const validateSeriesId = async (seriesId: string | undefined, authorId: string) 
     }
 }
 
-export async function fetchSerieswithBooks(data: fetchData): Promise<ActionResult<(Series & { books: Book[] })[]>> {
+export async function fetchSerieswithBooks(data: fetchData): Promise<ActionResult<(Series & { books: BookInfo[] })[]>> {
     try {
         const session = await auth.api.getSession({
               headers: await headers(),
@@ -51,7 +52,15 @@ export async function fetchSerieswithBooks(data: fetchData): Promise<ActionResul
                 include: {
                   books: { 
                     where: bookFilter,
-                    orderBy: { createdAt: 'asc' } 
+                    orderBy: { createdAt: 'asc' }, 
+                    include: {
+                        author: {
+                            select: {
+                                name: true,
+                                username: true,
+                            },
+                        },
+                    },
                   },
                 },
             })
@@ -62,6 +71,15 @@ export async function fetchSerieswithBooks(data: fetchData): Promise<ActionResul
               seriesId: null,
               ...bookFilter,
             },
+            orderBy: { createdAt: 'asc' },
+            include: {
+                author: {
+                    select: {
+                        name: true,
+                        username: true,
+                    },
+                },
+            },
         })
         const defaultSeires = {
             id: '-1',
@@ -70,8 +88,8 @@ export async function fetchSerieswithBooks(data: fetchData): Promise<ActionResul
             updatedAt: new Date(),
             authorId: uid,
             books: ungroupedBooks || [],
-        } as Series & { books: Book[] }
-        const seriesWithBooksArray: (Series & { books: Book[] })[] = [...seriesWithBooks];
+        } as Series & { books: BookInfo[] };
+        const seriesWithBooksArray: (Series & { books: BookInfo[] })[] = [...seriesWithBooks];
         seriesWithBooksArray.push(defaultSeires);
         return {
             status: 200,

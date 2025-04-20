@@ -12,11 +12,30 @@ type BookForm = {
     seriesId: string | null,
 }
 
+export type BookInfo = Book & {
+    author: {
+        username: string | null
+        name: string | null
+    }
+}
+
 export type ActionResult<T = void> = {
     status: number
     message?: string
     data?: T
-  }
+}
+
+export const getBookWordCount = async (bookId: string) => {
+    const res = await prisma.chapter.aggregate({
+        where: {
+            bookId: bookId,
+        },
+        _sum: {
+            wordCount: true,
+        },
+    })
+    return res._sum.wordCount || 0
+}
 
 const validateSeriesId = async (seriesId: string | null, authorId: string) => {
     if (!seriesId) return null
@@ -46,7 +65,7 @@ export const validateBookId = async (bookId: string | undefined, authorId: strin
     return book
 }
 
-export async function createBook(data: BookForm): Promise<ActionResult<Book>> {
+export async function createBook(data: BookForm): Promise<ActionResult<BookInfo>> {
     try {
         const session = await getValidatedSession()
         const seriesId = await validateSeriesId(data.seriesId, session.user.id)
@@ -59,10 +78,18 @@ export async function createBook(data: BookForm): Promise<ActionResult<Book>> {
                 authorId: session.user.id,
                 seriesId: seriesId,
             },
+            include: {
+                author: {
+                    select: {
+                        username: true,
+                        name: true,
+                    },
+                }
+            }
         })
         return {
             status: 200,
-            data: book,
+            data: { ...book, wordCount: 0 },
         }
     } catch (err) {
         if (err instanceof Error && err.message === "UNAUTHORIZED") {
@@ -80,7 +107,7 @@ export async function createBook(data: BookForm): Promise<ActionResult<Book>> {
     }
 }
 
-export async function updateBook(data: BookForm): Promise<ActionResult<Book>> {
+export async function updateBook(data: BookForm): Promise<ActionResult<BookInfo>> {
     try {
         const session = await getValidatedSession();
         await validateBookId(data.id, session.user.id)
@@ -95,6 +122,14 @@ export async function updateBook(data: BookForm): Promise<ActionResult<Book>> {
                 isPublic: data.isPublic,
                 seriesId: seriesId,
             },
+            include: {
+                author: {
+                    select: {
+                        username: true,
+                        name: true,
+                    },
+                },
+            }
         })
         return {
             status: 200,

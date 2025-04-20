@@ -14,9 +14,10 @@ import { Separator } from "@/components/ui/separator"
 import { updateSeries, deleteSeries } from "@/lib/book/series-actions"
 import { BookListDashboard, BookListPublic } from "@/components/book/BookList"
 import { useDashboardContext } from "@/hooks/useDashboardContext"
+import { BookInfo } from "@/lib/book/book-actions"
 
 interface SeriesListItemProps {
-  series: Series & { books: Book[] };
+  series: Series & { books: BookInfo[] };
   editable?: boolean;
   isLoading?: boolean;
   isEditing?: boolean;

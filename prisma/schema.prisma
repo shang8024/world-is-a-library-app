@@ -80,7 +80,7 @@ model Book {
   id       String   @id @default(cuid())
   title    String
   authorId String
-  Author   User   @relation("AuthorBooks", fields: [authorId], references: [id], onDelete: Cascade)
+  author   User   @relation("AuthorBooks", fields: [authorId], references: [id], onDelete: Cascade)
   seriesId String?
   series   Series? @relation(fields: [seriesId], references: [id], onDelete: SetNull)
   chapters Chapter[]  @relation("BookChapters")
@@ -90,6 +90,7 @@ model Book {
   bookmarks Bookmark[] @relation("UserBookmarks")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  wordCount Int @default(0)
 
   @@map("book")
   @@unique([title, authorId])

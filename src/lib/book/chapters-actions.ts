@@ -9,7 +9,6 @@ type ChaptersForm = {
     title: string,
     isPublic: boolean,
     content: string,
-    wordCount: number,
 }
 
 type ChapterIndex = {
@@ -152,21 +151,31 @@ export async function createChapter(bookId: string): Promise<ActionResult<Chapte
 export async function updateChapter(data: ChaptersForm): Promise<ActionResult<Chapter>> {
     try {
         const session = await getValidatedSession()
-        await validateChapterId(data.id, session.user.id)
-        const res = await prisma.chapter.update({
-            where: {
-                id: data.id,
-            },
-            data: {
+        const oldchapter = await validateChapterId(data.id, session.user.id)
+        const newWordCount = data.content.length
+        const wordCountDelta = newWordCount - oldchapter.wordCount
+        const [updatedChapter] = await prisma.$transaction([
+            prisma.chapter.update({
+              where: { id: data.id },
+              data: {
                 title: data.title,
                 isPublic: data.isPublic,
                 content: data.content,
-                wordCount: data.content.length,
-            },
-        })
+                wordCount: newWordCount,
+              },
+            }),
+            prisma.book.update({
+              where: { id: oldchapter.bookId },
+              data: {
+                wordCount: {
+                  increment: wordCountDelta,
+                },
+              },
+            }),
+          ]);
         return {
             status: 200,
-            data: res,
+            data: updatedChapter,
         }
     } catch (err) {
         if (err instanceof Error && err.message === "UNAUTHORIZED") {
@@ -185,12 +194,20 @@ export async function updateChapter(data: ChaptersForm): Promise<ActionResult<Ch
 export async function deleteChapter(chapterId: string): Promise<ActionResult> {
     try {
         const session = await getValidatedSession()
-        await validateChapterId(chapterId, session.user.id)
-        await prisma.chapter.delete({
-            where: {
-                id: chapterId,
-            },
-        })
+        const chapter = await validateChapterId(chapterId, session.user.id)
+        await prisma.$transaction([
+            prisma.chapter.delete({
+              where: { id: chapterId },
+            }),
+            prisma.book.update({
+              where: { id: chapter.bookId },
+              data: {
+                wordCount: {
+                  increment: -chapter.wordCount, // Decrement the book's word count
+                },
+              },
+            }),
+          ]);
         return {
             status: 200,
         }
