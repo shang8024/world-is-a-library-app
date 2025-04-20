@@ -1,3 +1,4 @@
+"use client"
 import * as React from "react"
 import { Book } from "@prisma/client"
 import {toast} from 'sonner'
@@ -31,15 +32,15 @@ interface BookListProps {
 function BookListItem({ book }: { book: BookInfo }) {
   const router = useRouter()
   return (
-    <div className="flex flex-row gap-2 py-2 border-b-2 sm:p-2">
+    <div className="flex flex-row gap-2 py-2 border-b-2 sm:p-2 min-w-0">
       <div className=" w-[120px] h-[150px] sm:w-[120px] sm:h-[150px] flex-shrink-0">
         <BookCard 
           book={book}
           onClick={() => router.push(`/books/${book.id}`)}
         />
       </div>
-      <div className="flex flex-col justify-between w-[calc(100vw-180px)] sm:w-[calc(100vw-336px)] md:w-[calc(100vw-368px)] lg:w-[calc(100vw-420px)]">
-        <div className="flex flex-col gap-1 flex-wrap break-words w-full">
+      <div className="flex flex-col justify-between min-w-0 w-full ">
+        <div className="flex flex-col gap-1 flex-wrap break-words w-full min-w-0">
           <Link
             href={`/books/${book.id}`}
             className=" text-xl font-semibold text-primary dark:text-primary-background truncate hover:underline line-clamp-2 text-wrap break-words w-full"
@@ -56,10 +57,10 @@ function BookListItem({ book }: { book: BookInfo }) {
             </Link>
           </p>
         </div>
-        <p className="text-sm text-gray-700 mt-2 flex-1 text-wrap break-words">
+        <p className="text-sm text-gray-700 mt-2 flex-1 text-wrap break-words min-w-0 w-full ">
           {book.description}
         </p>
-        <div className="flex justify-between text-xs text-gray-500 mt-4 w-full">
+        <div className="flex justify-between text-xs text-gray-500 mt-4 min-w-0 w-full ">
           <span>{book.wordCount} words</span>
           <span>Updated {new Date(book.updatedAt).toLocaleDateString()} at {new Date(book.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
         </div>

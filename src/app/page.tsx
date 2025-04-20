@@ -40,7 +40,7 @@ export default function Home() {
     </div>
   </section>
 
-  <section className="py-20 px-6 bg-gray-50">
+  <section className="py-12 pb-20 px-6 bg-gray-50">
         <h2 className="text-2xl font-bold text-center mb-12">For Readers</h2>
         <div className="grid gap-12 md:grid-cols-3 text-center max-w-6xl mx-auto">
           <div>
