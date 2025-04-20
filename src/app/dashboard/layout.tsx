@@ -19,6 +19,7 @@ export default function DashboardLayout({
     error: sessionError, //error state
     isPending //loading state
   } = authClient.useSession();
+  console.log("session", session);
 
   return (
     <div className="flex min-h-[calc(100vh-56px)] w-screen items-start justify-start">
