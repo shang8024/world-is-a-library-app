@@ -79,7 +79,7 @@ export default async function RootLayout({
         >
           <ActiveThemeProvider initialTheme={activeThemeValue}>
             <Suspense fallback={<Loading />}>
-              <main className="min-h-svh flex flex-col">
+              <main className="flex flex-col">
                 <header className="bg-background sticky inset-x-0 top-0  z-10 flex shrink-0 items-center gap-2 border-b">
                   <div className="flex h-14 w-full items-center gap-2 px-4">
                     <NavHeader />
@@ -96,7 +96,7 @@ export default async function RootLayout({
                     </div>
                   </div>
                 </header>
-                <div className="flex-1 min-h-[calc(100vh-56px)]">
+                <div className="">
                   {children}
                   {user && <MobileBottomNavbar/>}
                 </div>

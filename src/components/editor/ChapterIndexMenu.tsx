@@ -3,7 +3,7 @@ import { ChapterIndex, useEditorContext } from '@/hooks/useEditorContext'
 import React, { useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { ArrowLeftIcon, PlusIcon, CircleX } from 'lucide-react'
+import { ArrowLeftIcon, PlusIcon, CircleX} from 'lucide-react'
 import {
     Tooltip,
     TooltipContent,
@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { createChapter, deleteChapter } from '@/lib/book/chapters-actions'
 import clsx from "clsx"
+import Link from 'next/link'
 
 interface ChapterIndexItemProps {
   chapter: ChapterIndex;
@@ -41,7 +42,7 @@ const ChapterIndexItem = ({chapter, chapterActions}: ChapterIndexItemProps) => {
         }
       }
       >
-        <h1 className="text-lg font-bold break-all line-clamp-2">{chapter.title}
+        <h1 className="text-lg font-bold break-all">{chapter.title}
           {!chapter.isPublic && <span className="text-sm text-gray-500"> (Draft)</span>}
         </h1>
         <p className="text-sm text-gray-500">
@@ -180,7 +181,9 @@ export function ChapterIndexMenu() {
                 </Tooltip>
             </TooltipProvider>
         </div>
-        <h1 className="text-2xl font-bold text-center break-all line-clamp-3">{book?.title}</h1>
+        <Link href={`/books/${book.id}`} className="text-sm text-gray-500 hover:underline">
+          <h1 className="text-2xl font-bold text-center break-all line-clamp-3">{book?.title}</h1>
+        </Link>
         <Input
           type="text"
           placeholder="Search books and series..."

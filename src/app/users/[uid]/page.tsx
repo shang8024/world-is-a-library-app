@@ -3,8 +3,7 @@ import React, { useState, useEffect } from "react"
 import { useUserProfileContext } from "@/hooks/useUserProfileContext"
 import { SeriesListPublic } from "@/components/book/BookSeries"
 import Statistics from "@/components/user/Stats";
-import { Book, Series } from "@prisma/client";
-import { Button } from "@/components/ui/button";
+import { Series } from "@prisma/client";
 import { Input } from "@/components/ui/input";
 import { BookInfo } from "@/lib/book/book-actions";
 import {
@@ -12,7 +11,6 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"

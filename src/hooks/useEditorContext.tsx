@@ -42,7 +42,7 @@ export const EditorContextProvider = ({ children, bookId}: { children: React.Rea
     const [curChapter, setCurChapter] = useState<string | null>(null);
     useEffect(() => {
         setLoading(true)
-        fetchChaptersIndex(bookId)
+        fetchChaptersIndex({bookId})
         .then((res) => {
             if (res.status !== 200 || !res.data) throw new Error(res.message);
             return res.data;

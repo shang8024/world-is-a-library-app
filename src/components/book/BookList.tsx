@@ -49,10 +49,10 @@ function BookListItem({ book }: { book: BookInfo }) {
           <p className="text-sm text-gray-600 truncate">
             by{' '}
             <Link 
-              href={`/users/${book.author.username}`}
+              href={`/users/${book?.author?.username}`}
               className="no-underline hover:underline text-gray-600"
             >
-              {book.author.name}
+              {book?.author?.name}
             </Link>
           </p>
         </div>
@@ -143,7 +143,7 @@ function CarouselDisplay({books, editable, onDelete, isLoading}: {books: Book[] 
   )
 }
  
-function BookListDashboard({ books, mode }: {books: Book[], mode: 'card' | 'list'}) {
+function BookListDashboard({ books }: {books: Book[]}) {
   const {serieslist, setSeries, isLoading, setLoading} = useDashboardContext()
 
   const handleDelete = async (bookId: string) => {

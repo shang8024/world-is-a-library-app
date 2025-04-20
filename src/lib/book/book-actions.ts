@@ -14,9 +14,12 @@ type BookForm = {
 }
 
 export type BookInfo = Book & {
-    author: {
+    author?: {
         username: string | null
         name: string | null
+    }
+    _count?: {
+        chapters: number
     }
 }
 
@@ -86,7 +89,7 @@ export async function createBook(data: BookForm): Promise<ActionResult<BookInfo>
                         username: true,
                         name: true,
                     },
-                }
+                },
             }
         })
         return {

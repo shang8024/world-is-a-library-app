@@ -103,7 +103,7 @@ const SeriesListItem = ({ series, editable, isLoading, isEditing, seriesActions,
             <div className="flex items-center justify-center w-full h-full p-4 text-sm text-muted-foreground">
               No book found
             </div>
-          ) : editable ? <BookListDashboard books={series.books} mode={mode}/>
+          ) : editable ? <BookListDashboard books={series.books}/>
           : <BookListPublic books ={series.books} mode={mode}/>
           }
         </CollapsibleContent>

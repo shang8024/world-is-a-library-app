@@ -1,8 +1,9 @@
 "use server"
 import prisma from "@/db"
 import { getValidatedSession } from "@/lib/auth/auth-actions"
-import { Book, Chapter } from "@prisma/client"
+import { Chapter } from "@prisma/client"
 import { validateBookId } from "@/lib/book/book-actions"
+import {BookInfo} from "@/lib/book/book-actions"
 
 type ChaptersForm = {
     id: string,
@@ -41,13 +42,22 @@ const validateChapterId = async (chapterId: string, authorId: string) => {
 }
 
 
-export async function fetchChaptersIndex(bookId: string): Promise<ActionResult<{book:Book, chapters: ChapterIndex[] }>> {
+export async function fetchChaptersIndex({ bookId, isPublic }: { bookId: string; isPublic?: boolean }): Promise<ActionResult<{ book: BookInfo; chapters: ChapterIndex[] }>> {
     try {
         const session = await getValidatedSession()
         const chaptersIndex = await prisma.book.findFirst({
             where: { id: bookId },
             include: {
+                author: {
+                    select: {
+                        username: true,
+                        name: true,
+                    },
+                },
                 chapters: {
+                    where: {
+                        isPublic: isPublic,
+                    },
                     select: {
                         id: true,
                         title: true,
@@ -60,15 +70,24 @@ export async function fetchChaptersIndex(bookId: string): Promise<ActionResult<{
                         sortOrder: "asc",
                     },
                 },
+                _count: {
+                    select: {
+                        chapters: {
+                            where: {
+                                isPublic: isPublic,
+                            },
+                        }
+                    },
+                },
             },
         })
-        if (!chaptersIndex) {
+        if (!chaptersIndex || isPublic && !chaptersIndex.isPublic && chaptersIndex.authorId !== session.user.id) {
             return {
                 status: 404,
                 message: "Book not found",
             }
         }
-        if (chaptersIndex.authorId !== session.user.id) {
+        if (!isPublic && chaptersIndex.authorId !== session.user.id) {
             return {
                 status: 403,
                 message: "Unauthorized access",
@@ -77,7 +96,7 @@ export async function fetchChaptersIndex(bookId: string): Promise<ActionResult<{
         return {
             status: 200,
             data: {
-                book: chaptersIndex as Book,
+                book: chaptersIndex as BookInfo,
                 chapters: chaptersIndex.chapters as ChapterIndex[],
             },
         }
@@ -85,7 +104,6 @@ export async function fetchChaptersIndex(bookId: string): Promise<ActionResult<{
         if (err instanceof Error && err.message === "UNAUTHORIZED") {
             return { status: 401, message: "Session expired, Please login again" };
         }
-        console.error("Error fetching chapters", err)
         return {
             status: 500,
             message: "Error fetching chapters",
