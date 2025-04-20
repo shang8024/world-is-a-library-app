@@ -1,5 +1,7 @@
 # Final Report - World-Is-a-Library-app
 
+jiale shang, 1006580022, jiale.shang@mail.utoronto.ca
+
 url: https://world-is-a-library-app.vercel.app/
 
 github: https://github.com/shang8024/world-is-a-library-app
